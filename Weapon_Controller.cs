@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class Weapon_Controller : MonoBehaviour {
 
-    bool automatic = true;
-    float damage = 10f;
-    int firing_rate =600;
+    Gun gun;
 
     public GameObject Fire_Point;
 
@@ -28,12 +26,32 @@ public class Weapon_Controller : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        //primary fire
-        if (Input.GetButton("Fire1") && Time.time >= time_to_fire)
+        //check if gun equipped
+        if (this.gun != null)
         {
-            Fire();
-            time_to_fire = Time.time +( 1 / (firing_rate * Time.deltaTime));
+            Debug.Log("gun equipped");
+            Debug.Log(gun.Get_Fire_Mode());
+            Debug.Log(Input.GetButtonDown("Fire1")); //TOFIX: button press is not recognized
+            //primary fire
+            if (gun.Get_Fire_Mode() == 1 && Input.GetButtonDown("Fire1")) //check if firing mode is semi and the player pressed fire
+            {
+                Fire();
+                Debug.Log("asdf");
+            }
+                
+            
+
+            else if (Input.GetButton("Fire1") && Time.time >= time_to_fire) //check if fire button is pressed and its time to fire
+            {
+                
+
+                Fire();
+                time_to_fire = Time.time + (1 / (gun.Get_Fire_Rate() * Time.deltaTime));
+                
+                
+            }
         }
+        
 
         //TODO: add aiming
 
@@ -59,4 +77,6 @@ public class Weapon_Controller : MonoBehaviour {
         particle_systems.Add((GameObject)Instantiate(Muzzle_Flash, Fire_Point.transform.position, Quaternion.identity));
 
     }
+
+    public void Set_Gun(Gun new_gun) { this.gun = new_gun; }
 }

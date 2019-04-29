@@ -7,6 +7,7 @@ public class Debugger : MonoBehaviour {
     Text TextBox;
     string text = "";
     public Player_Controller Player;
+    public Game_Manager game;
 	// Use this for initialization
 	void Start ()
     {
@@ -17,6 +18,8 @@ public class Debugger : MonoBehaviour {
 	void Update ()
     {
         text = Player.ToString();
+        text += "\r\n";
+        text += game.Test();
         TextBox.text = text;
 	}
 }
