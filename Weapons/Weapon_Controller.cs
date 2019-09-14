@@ -11,6 +11,8 @@ public class Weapon_Controller : MonoBehaviour {
     //TODO: load object from source not manualy
     public GameObject Muzzle_Flash;
     public GameObject Hit_Effect;
+    public GameObject Hit_Marker;
+    int Hit_Marker_Counter = 0;
 
     List<GameObject> particle_systems = new List<GameObject>();
 
@@ -26,6 +28,15 @@ public class Weapon_Controller : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+
+        if (Hit_Marker_Counter != 0 && Hit_Marker_Counter < 6)//check if counting after hit and not reached limit
+            Hit_Marker_Counter++; //count up
+        else //after counting 6 frames disable hit marker
+        {
+            Hit_Marker_Counter = 0;
+            Hit_Marker.SetActive(false);
+        }
+
         //check if gun equipped
         if (this.gun != null)
         {
@@ -68,6 +79,8 @@ public class Weapon_Controller : MonoBehaviour {
                 Enemy enemy = hit.transform.GetComponent<Enemy>(); //get enemy controller component
                 Debug.Log("Hit enemy: " + enemy.Get_Name());
                 enemy.Hit(gun.Get_Damage()); //call hit on enemy
+                Hit_Marker.SetActive(true);
+                Hit_Marker_Counter = 1;
             }
             else
                 Debug.Log("hit:"+hit.transform.name);
