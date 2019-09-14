@@ -45,7 +45,7 @@ public class Weapon_Controller : MonoBehaviour {
 
         //TODO: add aiming
 
-        if (particle_systems.Count > 0)
+        if (particle_systems.Count > 0) //removes inactive particle systems to reduce memory usage
             if (!particle_systems[0].GetComponent<ParticleSystem>().IsAlive())
             {
                 Destroy(particle_systems[0]);
@@ -61,10 +61,20 @@ public class Weapon_Controller : MonoBehaviour {
         if (Physics.Raycast(Player_Camera.position, Player_Camera.forward, out hit))
         {
             particle_systems.Add((GameObject)Instantiate(Hit_Effect, hit.point, Quaternion.LookRotation(hit.normal)));
-            Debug.Log(hit.transform.name);
-        }
 
-        particle_systems.Add((GameObject)Instantiate(Muzzle_Flash, Fire_Point.transform.position, Quaternion.identity));
+
+            if (hit.transform.tag == "Enemy") //check if enemy is hit
+            {
+                Enemy enemy = hit.transform.GetComponent<Enemy>(); //get enemy controller component
+                Debug.Log("Hit enemy: " + enemy.Get_Name());
+                enemy.Hit(gun.Get_Damage()); //call hit on enemy
+            }
+            else
+                Debug.Log("hit:"+hit.transform.name);
+        }
+        GameObject muzzle_flash = (GameObject)Instantiate(Muzzle_Flash, Fire_Point.transform.position, Quaternion.identity); //instatiate muzzle flash
+        muzzle_flash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
+        particle_systems.Add(muzzle_flash); //add to particle system list
 
     }
 

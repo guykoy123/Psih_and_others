@@ -62,26 +62,33 @@ public class Player_Controller : MonoBehaviour {
     void Update()
     {
 
-        GetInput();
-        UpdateMovement();
+        GetInput(); //recieve user movement input
+        UpdateMovement(); //move player
 
         actual_speed = speed * speed_multiplier; //just for debugging
     }
 
     void GetInput()
     {
+        //determines movement type
+        //recieves moement input
+
         GetMovementType(); //get movement type (crouch,sprint,prone)
 
+        //get input from user
+
+        //get keyboard input
         xInput = speed * speed_multiplier * Input.GetAxis("Horizontal");
         zInput = speed * speed_multiplier * Input.GetAxis("Vertical");
 
+        //get mouse input
         xMouse = Input.GetAxis("Mouse X") * camera_sensetivity;
         yMouse = Input.GetAxis("Mouse Y") * camera_sensetivity;
     }
 
     void GetMovementType()
     {
-        //checks the movement type (crouce,sprint,prone)
+        //returns the movement type (crouce,sprint,prone)
 
         //check if sprint button is pushed
         if (Input.GetButton("Sprint") && !crouching)
@@ -126,14 +133,14 @@ public class Player_Controller : MonoBehaviour {
 
     void UpdateMovement()
     {
-        //move player and camera, and jump
+        //move player, camera, and jump
 
-        Vector3 movement = new Vector3(xInput, 0, zInput); //create vector with the movement of the player
-        movement = Vector3.ClampMagnitude(movement, speed * speed_multiplier ); //clamp vector values to speed to prevent going fast diagonaly
+        Vector3 movement = new Vector3(xInput, 0, zInput); //create vector with the movement of the player on the surface
+        movement = Vector3.ClampMagnitude(movement, speed * speed_multiplier ); //clamp values to maximum speed of player (prevents going fast diagonaly because of adding x and z values)
         movement = transform.TransformVector(movement); //rotate movement vector relative to the player rotation
 
 
-        //check if grounded
+        //check if player is on the ground
         if (cc.isGrounded)
         {
             if (Input.GetButtonDown("Jump") && !crouching) //if jump button is pressed jump and player is not crouching
@@ -150,18 +157,18 @@ public class Player_Controller : MonoBehaviour {
             ySpeed += gravity * Time.deltaTime; //if not grounded apply gravity
         }
 
-        //rotate player left and right
+        //rotate player left and right based on mouse rotation (based on mouse position on the x axis)
         transform.Rotate(0f, xMouse, 0f);
 
-        //rotate player camera up and down within an angle limit
-        camera_yRotation += yMouse; //add rotation amount based on mouse movement
-        camera_yRotation = Mathf.Clamp(camera_yRotation, rotation_limit_down, rotation_limit_up); //return rotation value between the limit (if yRotation outside limit returns closest rotation within the limit)
+        //rotate player camera up and down within angle limit
+        camera_yRotation += yMouse; //add rotation amount (based on mouse movement on y axis)
+        camera_yRotation = Mathf.Clamp(camera_yRotation, rotation_limit_down, rotation_limit_up); //clamp rotation to angle limit (if yRotation outside limit returns closest rotation within the limit)
         Player_Camera.eulerAngles = new Vector3(camera_yRotation, Player_Camera.eulerAngles.y, 0f); //rotate camera
 
-        //clamp horizontal speed to prevent falling too fast
+        //clamp y axis speed to maximum falling speed
         ySpeed = Mathf.Clamp(ySpeed, -max_fall_speed, max_fall_speed);
 
-        //move player
+        //move player on the surface
         cc.Move((movement + new Vector3(0, ySpeed, 0)) * Time.deltaTime); //add vertical speed to ground movement
     }
 

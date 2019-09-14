@@ -12,7 +12,7 @@ public class Gun
 
     Gun_Types Type;
 
-    //firing mode: 0 - semi and auto, 1 - semi
+    //firing mode: 0 - auto, 1 - semi
     int firing_mode = 0; 
 
     float fire_rate;
