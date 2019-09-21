@@ -45,10 +45,7 @@ public class Enemy : MonoBehaviour{
         //returns false when enemy has died
         float amount = damage - defense; //calculate how much health needs to be reduced
         if (amount>0f) //check that amount is positive (defense does not exceed damage)
-        {
             current_health -= amount; //reduce amount from current health
-
-        }
 
         if (current_health > 0)//check if enemy has health
         {

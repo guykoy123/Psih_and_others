@@ -18,6 +18,7 @@ public class Gun
     float fire_rate;
     float damage;
     int magazine_size;
+    float zoom_value;
     //TODO: add accuracy
 
     int current_ammo;
@@ -39,9 +40,12 @@ public class Gun
 
         //randomize gun stats based on rarity and type
         float[] stats = Gun_Configurations.Generate_Stats(Type.Get_Type_Code(),rarity_code);
+
+        //save stats
         fire_rate = stats[0];
         damage = stats[1];
         magazine_size = (int)stats[2];
+        zoom_value = stats[3];
 
         current_ammo = magazine_size; //reset magazine ammo
     }
@@ -84,6 +88,7 @@ public class Gun
     public float Get_Damage() { return damage; }
     public string Get_Rarity() { return rarity_name; }
     public int Get_Fire_Mode() { return firing_mode; }
+    public float Get_Zoom_Value() { return zoom_value; }
     public GameObject Get_Muzzle_Flash() { return Muzzle_Flash; }
     public GameObject Get_Hit_Effect() { return Hit_Effect; }
 
@@ -96,6 +101,7 @@ public class Gun
         text += ", Damage: " + damage.ToString();
         text += ", Fire Rate: " + fire_rate.ToString();
         text += ", Firing mode: " + firing_mode;
+        text += ",Zoom value: " + zoom_value;
         return text;
     }
 }
