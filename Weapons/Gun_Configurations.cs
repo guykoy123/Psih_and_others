@@ -34,7 +34,7 @@ public class Gun_Configurations {
     static int[] RPG_Damage_Range = { 150, 300 };
     static int[] RPG_Magazine_Range = { 1, 5 };
 
-    static int[] Zoom_Value = { 5, 10, 15, 20, 30, 35 }; //will pick on at random
+    static int[] Zoom_Value = { 5, 10, 15, 20, 30, 35 }; //will pick on randomly
 
     public static float[] Generate_Stats(int type, int rarity_code)
     {

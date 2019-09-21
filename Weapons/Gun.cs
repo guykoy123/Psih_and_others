@@ -89,9 +89,30 @@ public class Gun
     public string Get_Rarity() { return rarity_name; }
     public int Get_Fire_Mode() { return firing_mode; }
     public float Get_Zoom_Value() { return zoom_value; }
+    public int Get_Current_Ammo() { return current_ammo; }
+    public int Get_Magazine_Size() { return magazine_size; }
     public GameObject Get_Muzzle_Flash() { return Muzzle_Flash; }
     public GameObject Get_Hit_Effect() { return Hit_Effect; }
 
+    public bool Shoot()
+    {
+        //check if the magazine is not empty
+        //if not empty, reduces by 1 and returns true
+        //if empty returns false
+
+        if (current_ammo > 0) //cehck that magazine is not empty
+        {
+            current_ammo -= 1; //remove one bullet
+            return true; //return true (means player can shoot)
+        }
+        return false; //return false because magazine is empty and player can't shoot
+    }
+
+    public void Reload()
+    {
+        //resets current ammo
+        current_ammo = magazine_size;
+    }
 
     public override string ToString()
     {
