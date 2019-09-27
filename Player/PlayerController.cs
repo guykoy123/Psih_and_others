@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour {
     float ActualSpeed = 0f;
 
     //movement state
+    private bool Moving = false;
     private bool Sprinting = false;
     private bool Crouching = false;
 
@@ -59,8 +60,13 @@ public class PlayerController : MonoBehaviour {
 
     void Update()
     {
-
         GetInput(); //recieve user movement input
+        
+        //check if player is moving
+        if (xInput != 0 || zInput != 0)
+            Moving = true;
+        else
+            Moving = false;
         UpdateMovement(); //move player
 
         ActualSpeed = Speed * SpeedMultiplier; //just for debugging
@@ -71,7 +77,7 @@ public class PlayerController : MonoBehaviour {
         //determines movement type
         //recieves moement input
 
-        GetMovementType(); //get movement type (crouch,sprint,prone)
+        GetMovementType(); //get movement type (crouch,sprint)
 
         //get input from user
 
@@ -137,23 +143,16 @@ public class PlayerController : MonoBehaviour {
         movement = Vector3.ClampMagnitude(movement, Speed * SpeedMultiplier ); //clamp values to maximum Speed of player (prevents going fast diagonaly because of adding x and z values)
         movement = transform.TransformVector(movement); //rotate movement vector relative to the player rotation
 
-
         //check if player is on the ground
         if (CharacterCtrl.isGrounded)
         {
             if (Input.GetButtonDown("Jump") && !Crouching) //if jump button is pressed jump and player is not Crouching
-            {
                 ySpeed = JumpSpeed;
-            }
             else
-            {
                 ySpeed = Gravity * Time.deltaTime; //if jump button is not pressed apply Gravity
-            }
         }
         else
-        {
             ySpeed += Gravity * Time.deltaTime; //if not grounded apply Gravity
-        }
 
         //rotate player left and right based on mouse rotation (based on mouse position on the x axis)
         transform.Rotate(0f, xMouse, 0f);
@@ -161,7 +160,7 @@ public class PlayerController : MonoBehaviour {
         //rotate player camera up and down within angle limit
         CameraYRotation += yMouse; //add rotation amount (based on mouse movement on y axis)
         CameraYRotation = Mathf.Clamp(CameraYRotation, RotationLimitDown, RotationLimitUp); //clamp rotation to angle limit (if yRotation outside limit returns closest rotation within the limit)
-        PlayerCamera.eulerAngles = new Vector3(CameraYRotation, PlayerCamera.eulerAngles.y, 0f); //rotate camera
+        PlayerCamera.transform.eulerAngles = new Vector3(CameraYRotation, PlayerCamera.eulerAngles.y, 0f); //rotate camera
 
         //clamp y axis Speed to maximum falling Speed
         ySpeed = Mathf.Clamp(ySpeed, -MaxFallSpeed, MaxFallSpeed);
@@ -169,6 +168,9 @@ public class PlayerController : MonoBehaviour {
         //move player on the surface
         CharacterCtrl.Move((movement + new Vector3(0, ySpeed, 0)) * Time.deltaTime); //add vertical Speed to ground movement
     }
+
+    public bool isCrouching() { return Crouching; } //returns if player is crouching
+    public bool isMoving() { return Moving; }//returns if player is moving
 
 
 

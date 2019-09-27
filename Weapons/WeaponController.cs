@@ -21,8 +21,9 @@ public class WeaponController : MonoBehaviour {
     private int SustainedFireCount = 0;//tracks the amount of bullets fired without releasing the trigger
 
     //multipliers
-    private float MovingAccuracyMultiplier = 0.9f;//reduces accuracy when player is moving
-    private float StandingAccuracyMultiplier = 0.9f;//reduces accuracy when player is standing up (not Crouching)
+    private float MovingMultiplier = 0.8f;//reduces accuracy when player is moving
+    private float StandingMultiplier = 0.9f;//reduces accuracy when player is standing up (not Crouching)
+    private float HipFireMultiplier = 0.8f;//reduces accuracy when player is firing from the hip
 
     //constants
     private const float ZoomRate = 100f; //stores the zoom rate (higher number is faster zoom)
@@ -41,6 +42,7 @@ public class WeaponController : MonoBehaviour {
     private Animator GunAnimator; //stores the gun animator (used to control gun animations)
     private Animator HitMarkerAnimation; //stores the hit marker animator (used tp control hit marker animations)
     private Camera PlayerCamera; //stores the player camera
+    private PlayerController Player; //stores the player controller
     public Text AmmoTextbox; //stores the ammo display textbox
 
     private List<GameObject> ParticleSystems = new List<GameObject>(); //stores all particle systems that are created (these are destroyed at the end of their animation)
@@ -55,7 +57,9 @@ public class WeaponController : MonoBehaviour {
 
         //load components
         GunAnimator = GetComponent<Animator>(); //load the gun animator
-        HitMarkerAnimation = GameObject.Find("Hit_Marker").GetComponent<Animator>(); //load the hit marker animator
+        HitMarkerAnimation = GameObject.Find("HitMarker").GetComponent<Animator>(); //load the hit marker animator
+        PlayerCamera = GameObject.Find("PlayerCamera").GetComponent<Camera>();//load player camera
+        Player = GameObject.Find("Player").GetComponent<PlayerController>(); //load player
 
         PlayerFOV = PlayerCamera.fieldOfView; //get player FOV
 
@@ -199,28 +203,34 @@ public class WeaponController : MonoBehaviour {
          *      x - number of bullets fired in a row (divided by 2 to slow accuracy reduction rate)
          */
 
+        float AccuracyMultiplier = GetAccuracyMultiplier();
+
         //accuracy is not reduced on the first 4 shots
         if (SustainedFireCount < 5)
-        {
-            //higher accuacy when aiming
-            if(Aiming)
-                return GunAccuracy;
-            //lower accuracy for hip fire
-            else
-                return GunAccuracy * 0.85f;  
-        }
+            return GunAccuracy * AccuracyMultiplier;
         else
         {
-            //higher accuacy when aiming
-            float min_accuracy;
-            if (Aiming)
-                min_accuracy = GunAccuracy * 0.85f;
-            //lower accuracy for hip fire
-            else
-                min_accuracy = GunAccuracy * 0.7f;
+            float MinimumAccuracy = GunAccuracy * AccuracyMultiplier;
+            return MinimumAccuracy + (1 - MinimumAccuracy) / (1 + SustainedFireCount / 2);
+        }
+    }
 
-            return min_accuracy + (1 - min_accuracy) / (1 + SustainedFireCount/2);
-        } 
+    private float GetAccuracyMultiplier()
+    {
+        /*
+         * calculates accuracy multiplier based on player state
+         * moving/crouching/aiming
+         */
+
+        float Multiplier = 1f;
+        if (!Aiming)
+            Multiplier *= HipFireMultiplier;
+        if (!Player.isCrouching())
+            Multiplier *= StandingMultiplier;
+        if (Player.isMoving())
+            Multiplier *= MovingMultiplier;
+
+        return Multiplier;
     }
 
     private void UpdateAmmo()
@@ -229,6 +239,14 @@ public class WeaponController : MonoBehaviour {
         AmmoTextbox.text = EquippedGun.GetCurrentAmmo() + " / " + EquippedGun.GetMagazineSize();
     }
 
+    public float GetGunAccuracy()
+    {
+        return GunAccuracy;
+    }
+    public float GetCurrentAccuracy()
+    {
+        return GunAccuracy * GetAccuracyMultiplier();
+    }
     public void EquipGun(Gun NewGun) //TODO: add weapon fire point
     {
         //equips new gun and displays the ammo
