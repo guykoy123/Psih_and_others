@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class Debugger : MonoBehaviour {
     Text TextBox;
     string text = "";
-    public Player_Controller Player;
-    public Game_Manager game;
+    public PlayerController Player;
+    public GameManager game;
 	// Use this for initialization
 	void Start ()
     {

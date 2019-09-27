@@ -7,92 +7,90 @@ public class Gun
     //pistol - 1, shotgun - 2, smg - 3, assault rifle - 4, lmg - 5, sniper - 6, rpg - 7
 
     //rarity codes: 0 - common (default), 1 - uncommon, 2 - rare, 3 - legendary
-    int rarity_code;
-    string rarity_name;
+    int RarityCode;
+    string RarityName;
 
-    Gun_Types Type;
+    GunTypes Type;
 
     //firing mode: 0 - auto, 1 - semi
-    int firing_mode = 0; 
+    int FiringMode = 0; 
 
-    float fire_rate;
-    float damage;
-    int magazine_size;
-    float zoom_value;
+    float FireRate;
+    float Damage;
+    int MagazineSize;
+    float ZoomValue;
     //TODO: add accuracy
 
-    int current_ammo;
+    int CurrentAmmo;
 
     //TODO: load object from source not manualy
     public GameObject MuzzleFlash;
-    public GameObject Hit_Effect;
 
-    public Gun(int type,int rarity = 0, int fire_mode = 0)
+    public Gun(int type,int rarity = 0, int FireMode = 0)
     {
-        //create Gun_Types object
-        Type = new Gun_Types(type);
+        //create GunTypes object
+        Type = new GunTypes(type);
 
         //check fire mode legal and save
-        Set_Firing_Mode(fire_mode);
+        SetFiringMode(FireMode);
 
         //check rarity and save
-        Set_Rarity_Name(rarity);
+        SetRarityName(rarity);
 
         //randomize gun stats based on rarity and type
-        float[] stats = Gun_Configurations.Generate_Stats(Type.Get_Type_Code(),rarity_code);
+        float[] stats = GunConfigurations.GenerateStats(Type.GetTypeCode(),RarityCode);
 
         //save stats
-        fire_rate = stats[0];
-        damage = stats[1];
-        magazine_size = (int)stats[2];
-        zoom_value = stats[3];
+        FireRate = stats[0];
+        Damage = stats[1];
+        MagazineSize = (int)stats[2];
+        ZoomValue = stats[3];
 
-        current_ammo = magazine_size; //reset magazine ammo
+        CurrentAmmo = MagazineSize; //reset magazine ammo
     }
 
-    private void Set_Firing_Mode(int fire_mode)
+    private void SetFiringMode(int FireMode)
     {
-        if (fire_mode > 1 || fire_mode < 0) //check if fire mode out of range
+        if (FireMode > 1 || FireMode < 0) //check if fire mode out of range
         {
-            throw new System.ArgumentOutOfRangeException("fire_mode", "Firing mode must be 0 or 1"); // throw exception
+            throw new System.ArgumentOutOfRangeException("FireMode", "Firing mode must be 0 or 1"); // throw exception
         }
         else
-            firing_mode = fire_mode; //save fire mode
+            FiringMode = FireMode; //save fire mode
     }
 
-    private void Set_Rarity_Name(int rarity)
+    private void SetRarityName(int rarity)
     {
-        //checks if rarity code is legal and updates rarity_name
+        //checks if rarity code is legal and updates RarityName
         switch (rarity)
         {
             case 0:
-                rarity_name = "Common";
+                RarityName = "Common";
                 break;
             case 1:
-                rarity_name = "Uncommon";
+                RarityName = "Uncommon";
                 break;
             case 2:
-                rarity_name = "Rare";
+                RarityName = "Rare";
                 break;
             case 3:
-                rarity_name = "Legendary";
+                RarityName = "Legendary";
                 break;
             default:
                 throw new System.ArgumentOutOfRangeException("rarity", "Must be a value between 0 and 3");
         }
-        this.rarity_code = rarity;
+        this.RarityCode = rarity;
     }
 
 
-    public float GetFiringRate() { return fire_rate; }
-    public float GetDamage() { return damage; }
-    public string Get_Rarity() { return rarity_name; }
-    public int GetFiringMode() { return firing_mode; }
-    public float GetZoomValue() { return zoom_value; }
-    public int GetCurrentAmmo() { return current_ammo; }
-    public int GetMagazineSize() { return magazine_size; }
+    public float GetFiringRate() { return FireRate; }
+    public float GetDamage() { return Damage; }
+    public string Get_Rarity() { return RarityName; }
+    public int GetFiringMode() { return FiringMode; }
+    public float GetZoomValue() { return ZoomValue; }
+    public int GetCurrentAmmo() { return CurrentAmmo; }
+    public int GetMagazineSize() { return MagazineSize; }
     public GameObject Get_MuzzleFlash() { return MuzzleFlash; }
-    public GameObject Get_Hit_Effect() { return Hit_Effect; }
 
     public bool Shoot()
     {
@@ -100,9 +98,9 @@ public class Gun
         //if not empty, reduces by 1 and returns true
         //if empty returns false
 
-        if (current_ammo > 0) //cehck that magazine is not empty
+        if (CurrentAmmo > 0) //cehck that magazine is not empty
         {
-            current_ammo -= 1; //remove one bullet
+            CurrentAmmo -= 1; //remove one bullet
             return true; //return true (means player can shoot)
         }
         return false; //return false because magazine is empty and player can't shoot
@@ -111,18 +109,18 @@ public class Gun
     public void Reload()
     {
         //resets current ammo
-        current_ammo = magazine_size;
+        CurrentAmmo = MagazineSize;
     }
 
     public override string ToString()
     {
         string text = "";
-        text += "Type: " + Type.Get_Type_Name();
-        text += ", Rarity: " + rarity_name;
-        text += ", Damage: " + damage.ToString();
-        text += ", Fire Rate: " + fire_rate.ToString();
-        text += ", Firing mode: " + firing_mode;
-        text += ",Zoom value: " + zoom_value;
+        text += "Type: " + Type.GetTypeName();
+        text += ", Rarity: " + RarityName;
+        text += ", Damage: " + Damage.ToString();
+        text += ", Fire Rate: " + FireRate.ToString();
+        text += ", Firing mode: " + FiringMode;
+        text += ",Zoom value: " + ZoomValue;
         return text;
     }
 }

@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Game_Manager : MonoBehaviour {
+public class GameManager : MonoBehaviour {
     Gun temp;
-    public Player_Controller p_controller;
-    public WeaponController p_weapon;
+    public PlayerController p_controller;
+    public WeaponController PlayerWeapon;
 
 	// Use this for initialization
 	void Start ()
     {
         temp = new Gun(3,2,0); //create test gun
-        p_weapon.Equip_Gun(temp); // give player the gun
+        PlayerWeapon.EquipGun(temp); // give player the gun
 
         GameObject test_dummy = GameObject.Find("Test Dummy"); //find the test dummy game object
 	}

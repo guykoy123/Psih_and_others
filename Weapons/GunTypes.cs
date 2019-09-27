@@ -2,48 +2,48 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Gun_Types
+public class GunTypes
 {
-    string type_name = ""; //can be: pistol - 1, shotgun - 2, smg - 3, assault rifle - 4, lmg - 5, sniper - 6, rpg - 7
+    string TypeName = ""; //can be: pistol - 1, shotgun - 2, smg - 3, assault rifle - 4, lmg - 5, sniper - 6, rpg - 7
     int type_code = 0;
 
-    public Gun_Types(int type)
+    public GunTypes(int type)
     {
         /* 
         in:  gun type (by number) and firing mode (defaul is auto and semi)
         gun types: pistol - 1, shotgun - 2, smg - 3, assault rifle - 4, lmg - 5, sniper - 6, rpg - 7
         */
 
-        Set_gun_Type(type); //save gun type if lega;
+        SetGunType(type); //save gun type if lega;
 
     }
 
-    private void Set_gun_Type(int type)
+    private void SetGunType(int type)
     {
         //checks that given type is legal and saves it
         //if type is not legal throws an exception
         switch (type)
         {
             case 1:
-                this.type_name = "Pistol";
+                this.TypeName = "Pistol";
                 break;
             case 2:
-                this.type_name = "Shotgun";
+                this.TypeName = "Shotgun";
                 break;
             case 3:
-                this.type_name = "SMG";
+                this.TypeName = "SMG";
                 break;
             case 4:
-                this.type_name = "Assault Rifle";
+                this.TypeName = "Assault Rifle";
                 break;
             case 5:
-                this.type_name = "LMG";
+                this.TypeName = "LMG";
                 break;
             case 6:
-                this.type_name = "Sniper";
+                this.TypeName = "Sniper";
                 break;
             case 7:
-                this.type_name = "RPG";
+                this.TypeName = "RPG";
                 break;
             default:
                 throw new System.ArgumentOutOfRangeException("type","Type must be a number between 1 and 7");
@@ -52,6 +52,6 @@ public class Gun_Types
         this.type_code = type;
     }
 
-    public int Get_Type_Code() { return this.type_code; }
-    public string Get_Type_Name() { return this.type_name; }
+    public int GetTypeCode() { return this.type_code; }
+    public string GetTypeName() { return this.TypeName; }
 }

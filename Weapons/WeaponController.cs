@@ -21,8 +21,8 @@ public class WeaponController : MonoBehaviour {
     private int SustainedFireCount = 0;//tracks the amount of bullets fired without releasing the trigger
 
     //multipliers
-    private float Moving_Accuracy_Multiplier = 0.9f;//reduces accuracy when player is moving
-    private float Standing_Accuracy_Multiplier = 0.9f;//reduces accuracy when player is standing up (not crouching)
+    private float MovingAccuracyMultiplier = 0.9f;//reduces accuracy when player is moving
+    private float StandingAccuracyMultiplier = 0.9f;//reduces accuracy when player is standing up (not Crouching)
 
     //constants
     private const float ZoomRate = 100f; //stores the zoom rate (higher number is faster zoom)
@@ -146,7 +146,7 @@ public class WeaponController : MonoBehaviour {
                 if (hit.transform.tag == "Enemy") //check if enemy is hit
                 {
                     Enemy enemy = hit.transform.GetComponent<Enemy>(); //get enemy controller component
-                    Debug.Log("Hit enemy: " + enemy.Get_Name());
+                    Debug.Log("Hit enemy: " + enemy.GetName());
                     enemy.Hit(EquippedGun.GetDamage()); //call hit on enemy
                     HitMarkerAnimation.SetTrigger("Hit"); //trigger hit marker animation (placeholder animation)
                     ParticleSystems.Add((GameObject)Instantiate(EnemyHitVFX, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enemy
@@ -229,7 +229,7 @@ public class WeaponController : MonoBehaviour {
         AmmoTextbox.text = EquippedGun.GetCurrentAmmo() + " / " + EquippedGun.GetMagazineSize();
     }
 
-    public void Equip_Gun(Gun NewGun) //TODO: add weapon fire point
+    public void EquipGun(Gun NewGun) //TODO: add weapon fire point
     {
         //equips new gun and displays the ammo
         EquippedGun = NewGun;
