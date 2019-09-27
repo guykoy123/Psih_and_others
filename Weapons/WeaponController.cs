@@ -47,10 +47,6 @@ public class WeaponController : MonoBehaviour {
 
     private List<GameObject> ParticleSystems = new List<GameObject>(); //stores all particle systems that are created (these are destroyed at the end of their animation)
 
-
-
-    private float GunAccuracy =0.9f; //temporary
-
     // Use this for initialization
     void Start () {
         //PlayerCamera = GetComponentInParent<Transform>();
@@ -105,7 +101,7 @@ public class WeaponController : MonoBehaviour {
             }
             else if (Input.GetButtonUp("Fire2")) //check if not pressing aim button
             {
-                GunAnimator.SetTrigger("To_Hip"); //trigger to hip animation
+                GunAnimator.SetTrigger("ToHip"); //trigger to hip animation
                 Aiming = false; //set aiming to false
             }
 
@@ -207,10 +203,10 @@ public class WeaponController : MonoBehaviour {
 
         //accuracy is not reduced on the first 4 shots
         if (SustainedFireCount < 5)
-            return GunAccuracy * AccuracyMultiplier;
+            return EquippedGun.GetAccuracy() * AccuracyMultiplier;
         else
         {
-            float MinimumAccuracy = GunAccuracy * AccuracyMultiplier;
+            float MinimumAccuracy = EquippedGun.GetAccuracy() * AccuracyMultiplier;
             return MinimumAccuracy + (1 - MinimumAccuracy) / (1 + SustainedFireCount / 2);
         }
     }
@@ -239,14 +235,20 @@ public class WeaponController : MonoBehaviour {
         AmmoTextbox.text = EquippedGun.GetCurrentAmmo() + " / " + EquippedGun.GetMagazineSize();
     }
 
-    public float GetGunAccuracy()
+    public float GetAccuracy()
     {
-        return GunAccuracy;
+        float Accuracy = EquippedGun.GetAccuracy();
+        return Accuracy;
     }
-    public float GetCurrentAccuracy()
+    public float GetCurrentAccuracy() {return EquippedGun.GetAccuracy() * GetAccuracyMultiplier();}
+    
+    public bool isGunEquipped()
     {
-        return GunAccuracy * GetAccuracyMultiplier();
+        if (EquippedGun != null)
+            return true;
+        return false;
     }
+
     public void EquipGun(Gun NewGun) //TODO: add weapon fire point
     {
         //equips new gun and displays the ammo

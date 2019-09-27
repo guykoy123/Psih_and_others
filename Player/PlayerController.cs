@@ -115,7 +115,7 @@ public class PlayerController : MonoBehaviour {
         //check if crouch button is pushed
         if (Input.GetButton("Crouch") && !Sprinting)
         {
-            Debug.Log("Crouch");
+            //Debug.Log("Crouch");
             if (!Crouching)
             {
                 SpeedMultiplier = SpeedMultiplier + CrouchMultiplier; //update multiplier 
