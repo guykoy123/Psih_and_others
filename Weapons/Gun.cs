@@ -24,7 +24,7 @@ public class Gun
     int current_ammo;
 
     //TODO: load object from source not manualy
-    public GameObject Muzzle_Flash;
+    public GameObject MuzzleFlash;
     public GameObject Hit_Effect;
 
     public Gun(int type,int rarity = 0, int fire_mode = 0)
@@ -84,14 +84,14 @@ public class Gun
     }
 
 
-    public float Get_Fire_Rate() { return fire_rate; }
-    public float Get_Damage() { return damage; }
+    public float GetFiringRate() { return fire_rate; }
+    public float GetDamage() { return damage; }
     public string Get_Rarity() { return rarity_name; }
-    public int Get_Fire_Mode() { return firing_mode; }
-    public float Get_Zoom_Value() { return zoom_value; }
-    public int Get_Current_Ammo() { return current_ammo; }
-    public int Get_Magazine_Size() { return magazine_size; }
-    public GameObject Get_Muzzle_Flash() { return Muzzle_Flash; }
+    public int GetFiringMode() { return firing_mode; }
+    public float GetZoomValue() { return zoom_value; }
+    public int GetCurrentAmmo() { return current_ammo; }
+    public int GetMagazineSize() { return magazine_size; }
+    public GameObject Get_MuzzleFlash() { return MuzzleFlash; }
     public GameObject Get_Hit_Effect() { return Hit_Effect; }
 
     public bool Shoot()

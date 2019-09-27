@@ -41,7 +41,7 @@ public class Player_Controller : MonoBehaviour {
     float jumpSpeed = 5f;
     float max_fall_speed = 50f;
 
-    public Transform Player_Camera;
+    public Transform PlayerCamera;
     public Transform Player_Mesh;
 
     CharacterController cc;
@@ -116,7 +116,7 @@ public class Player_Controller : MonoBehaviour {
             {
                 speed_multiplier = speed_multiplier + crouch_multiplier; //update multiplier 
                 crouching = true;
-                Player_Camera.SetPositionAndRotation(new Vector3(Player_Camera.position.x, Player_Camera.position.y - 0.5f, Player_Camera.position.z),Player_Camera.rotation); //lower camera
+                PlayerCamera.SetPositionAndRotation(new Vector3(PlayerCamera.position.x, PlayerCamera.position.y - 0.5f, PlayerCamera.position.z),PlayerCamera.rotation); //lower camera
                 Player_Mesh.SetPositionAndRotation(new Vector3(Player_Mesh.position.x, Player_Mesh.position.y - 0.5f, Player_Mesh.position.z), Player_Mesh.rotation); //lower player mesh
             }
         }
@@ -125,7 +125,7 @@ public class Player_Controller : MonoBehaviour {
             Debug.Log("Stop crouch");
             speed_multiplier = speed_multiplier - crouch_multiplier; //return multiplier back to previouse value
             crouching = false;
-            Player_Camera.SetPositionAndRotation(new Vector3(Player_Camera.position.x, Player_Camera.position.y + 0.5f, Player_Camera.position.z), Player_Camera.rotation); //raise camera to original position
+            PlayerCamera.SetPositionAndRotation(new Vector3(PlayerCamera.position.x, PlayerCamera.position.y + 0.5f, PlayerCamera.position.z), PlayerCamera.rotation); //raise camera to original position
             Player_Mesh.SetPositionAndRotation(new Vector3(Player_Mesh.position.x, Player_Mesh.position.y + 0.5f, Player_Mesh.position.z), Player_Mesh.rotation); // raise player mesh to original postition
         }
     }
@@ -163,7 +163,7 @@ public class Player_Controller : MonoBehaviour {
         //rotate player camera up and down within angle limit
         camera_yRotation += yMouse; //add rotation amount (based on mouse movement on y axis)
         camera_yRotation = Mathf.Clamp(camera_yRotation, rotation_limit_down, rotation_limit_up); //clamp rotation to angle limit (if yRotation outside limit returns closest rotation within the limit)
-        Player_Camera.eulerAngles = new Vector3(camera_yRotation, Player_Camera.eulerAngles.y, 0f); //rotate camera
+        PlayerCamera.eulerAngles = new Vector3(camera_yRotation, PlayerCamera.eulerAngles.y, 0f); //rotate camera
 
         //clamp y axis speed to maximum falling speed
         ySpeed = Mathf.Clamp(ySpeed, -max_fall_speed, max_fall_speed);

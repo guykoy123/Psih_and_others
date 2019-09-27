@@ -5,13 +5,13 @@ using UnityEngine;
 public class Game_Manager : MonoBehaviour {
     Gun temp;
     public Player_Controller p_controller;
-    public Weapon_Controller p_weapon;
+    public WeaponController p_weapon;
 
 	// Use this for initialization
 	void Start ()
     {
         temp = new Gun(3,2,0); //create test gun
-        p_weapon.Set_Gun(temp); // give player the gun
+        p_weapon.Equip_Gun(temp); // give player the gun
 
         GameObject test_dummy = GameObject.Find("Test Dummy"); //find the test dummy game object
 	}

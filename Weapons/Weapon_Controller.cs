@@ -1,108 +1,136 @@
-﻿using System.Collections;
+﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Weapon_Controller : MonoBehaviour {
+public class WeaponController : MonoBehaviour {
+    /* Weapon controller
+     * controlls the currently equiped weapon
+     * actions: fire (hit), aim, reload
+     */
 
-    Gun Equipped_Gun;
+    Gun EquippedGun; //currently equipped gun
 
-    public GameObject Fire_Point;
+    public GameObject Fire_Point; //holds the empty game object that is located at the end of the barrel (where the muzzle flash is spawned)
 
     //tracks the states of the gun
     private bool Aiming = false; //tracks if player is aiming
     private bool Reloading = false; //tracks if player is reloading
+    private bool SustainedFire = false;//tracks if player is firing continuously
+    private int SustainedFireCount = 0;//tracks the amount of bullets fired without releasing the trigger
 
-    private float Zoom_Rate = 100f; //stores the zoom rate (higher number is faster zoom)
-    private float Base_FOV; //stores the base FOV of the player
+    //multipliers
+    private float Moving_Accuracy_Multiplier = 0.9f;//reduces accuracy when player is moving
+    private float Standing_Accuracy_Multiplier = 0.9f;//reduces accuracy when player is standing up (not crouching)
 
-    private float time_to_fire = 0f; //stores the time since last shot (used for controlling fire rate)
+    //constants
+    private const float ZoomRate = 100f; //stores the zoom rate (higher number is faster zoom)
+
+    //other variables
+    private float PlayerFOV; //stores the base FOV of the player
+    private float TimeToFire = 0f; //stores the time since last shot (used for controlling fire rate)
 
     //TODO: get from equipped gun (different for every weapon)
-    public GameObject Muzzle_Flash;
+    public GameObject MuzzleFlash;
 
-    public GameObject Enviroment_Hit_vfx; //stores the effect of hitting enviroment (placeholder) need to add different types based on what was hit
-    public GameObject Enemy_Hit_vfx; //stores the effect of hitting enemy (placeholder) need to add different types based on what was hit
+    public GameObject EnviromentHitVFX; //stores the effect of hitting enviroment (placeholder) need to add different types based on what was hit
+    public GameObject EnemyHitVFX; //stores the effect of hitting enemy (placeholder) need to add different types based on what was hit
 
-    public Animator Gun_Animator; //stores the gun animator (used to control gun animations)
-    public Animator Hit_Marker_Animator; //stores the hit marker animator (used tp control hit marker animations)
+    //GameObjects
+    private Animator GunAnimator; //stores the gun animator (used to control gun animations)
+    private Animator HitMarkerAnimation; //stores the hit marker animator (used tp control hit marker animations)
+    private Camera PlayerCamera; //stores the player camera
+    public Text AmmoTextbox; //stores the ammo display textbox
 
-    List<GameObject> particle_systems = new List<GameObject>();
+    private List<GameObject> ParticleSystems = new List<GameObject>(); //stores all particle systems that are created (these are destroyed at the end of their animation)
 
-    public Camera Player_Camera;
-    public Transform Player_Camera_Transform;
 
-    public Text Ammo_Textbox;
+
+    private float GunAccuracy =0.9f; //temporary
 
     // Use this for initialization
     void Start () {
-        //Player_Camera = GetComponentInParent<Transform>();
-        Gun_Animator = GetComponent<Animator>();
-        Base_FOV = Player_Camera.fieldOfView; //get player FOV
+        //PlayerCamera = GetComponentInParent<Transform>();
+
+        //load components
+        GunAnimator = GetComponent<Animator>(); //load the gun animator
+        HitMarkerAnimation = GameObject.Find("Hit_Marker").GetComponent<Animator>(); //load the hit marker animator
+
+        PlayerFOV = PlayerCamera.fieldOfView; //get player FOV
 
         //display ammo if gun is equipped
-        if(Equipped_Gun != null)
-            Update_Ammo();
+        if(EquippedGun != null)
+            UpdateAmmo();
     }
 
     // Update is called once per frame
     void Update ()
     {
-
-
         //check if gun equipped
-        if (Equipped_Gun != null)
+        if (EquippedGun != null)
         {
             //primary fire
-            if (Equipped_Gun.Get_Fire_Mode() == 1 && Input.GetButtonDown("Fire1") && Time.time >= time_to_fire) //check if firing mode is semi and the player pressed fire and it is time to fire
-            { 
-                Fire();
-                time_to_fire = Time.time + (1 / (Equipped_Gun.Get_Fire_Rate() * Time.deltaTime));
-            }
-            else if (Input.GetButton("Fire1") && Time.time >= time_to_fire && Equipped_Gun.Get_Fire_Mode()!=1) //check if fire button is pressed and its time to fire and fire mode is not semi
+            if (EquippedGun.GetFiringMode() == 1 && Input.GetButtonDown("Fire1") && Time.time >= TimeToFire) //check if firing mode is semi and the player pressed fire and it is time to fire
             {
                 Fire();
-                time_to_fire = Time.time + (1 / (Equipped_Gun.Get_Fire_Rate() * Time.deltaTime));
+                TimeToFire = Time.time + (1 / (EquippedGun.GetFiringRate() * Time.deltaTime));
             }
+            else if (Input.GetButton("Fire1") && Time.time >= TimeToFire && EquippedGun.GetFiringMode() != 1) //check if fire button is pressed and its time to fire and fire mode is auto
+            {
+                if (SustainedFire)
+                    SustainedFireCount++;
+                else
+                {
+                    SustainedFire = true;
+                    SustainedFireCount = 1;
+                }
+                Fire();
+                TimeToFire = Time.time + (1 / (EquippedGun.GetFiringRate() * Time.deltaTime));
+            }
+
+            else if (Input.GetButtonUp("Fire1")) //check if fire button is released
+                SustainedFire = false; //reset sustained fire tracker
+
 
             //aiming
             if (Input.GetButtonDown("Fire2")) //check if aim button down
             {
-                Gun_Animator.SetTrigger("Aim"); //trigger aim animation
+                GunAnimator.SetTrigger("Aim"); //trigger aim animation
                 Aiming = true; //set aiming to true             
             }
             else if (Input.GetButtonUp("Fire2")) //check if not pressing aim button
             {
-                Gun_Animator.SetTrigger("To_Hip"); //trigger to hip animation
+                GunAnimator.SetTrigger("To_Hip"); //trigger to hip animation
                 Aiming = false; //set aiming to false
             }
 
             //reloading
             if(Input.GetButtonDown("Reload") && !Reloading && !Aiming) //check if reload buttons is pressed while not reloading or aiming
             {
-                Gun_Animator.SetTrigger("Reload");//trigger reload animation
+                GunAnimator.SetTrigger("Reload");//trigger reload animation
                 Reloading = true; //set reloading to true
             }
-            else if(!Gun_Animator.GetCurrentAnimatorStateInfo(0).IsName("Reload") && Reloading) //check if reload animation is finished
+            else if(!GunAnimator.GetCurrentAnimatorStateInfo(0).IsName("Reload") && Reloading) //check if reload animation is finished
             {
                 Reloading = false;
-                Equipped_Gun.Reload(); //reload current ammo
-                Update_Ammo(); //update ammo counter UI
+                EquippedGun.Reload(); //reload current ammo
+                UpdateAmmo(); //update ammo counter UI
             }
         }
 
         //animate zoom in/out of aiming
         if (Aiming) //check that player is aiming
-            Player_Camera.fieldOfView = Mathf.MoveTowards(Player_Camera.fieldOfView, Base_FOV - Equipped_Gun.Get_Zoom_Value(), Zoom_Rate * Time.deltaTime); //zoom in to (base player FOV - the gun zoom), at spesific zoom rate
+            PlayerCamera.fieldOfView = Mathf.MoveTowards(PlayerCamera.fieldOfView, PlayerFOV - EquippedGun.GetZoomValue(), ZoomRate * Time.deltaTime); //zoom in to (base player FOV - the gun zoom), at spesific zoom rate
         else
-            Player_Camera.fieldOfView = Mathf.MoveTowards(Player_Camera.fieldOfView, Base_FOV, Zoom_Rate * Time.deltaTime); //zoom out to the base player FOV, at spesific zoom rate
+            PlayerCamera.fieldOfView = Mathf.MoveTowards(PlayerCamera.fieldOfView, PlayerFOV, ZoomRate * Time.deltaTime); //zoom out to the base player FOV, at spesific zoom rate
 
 
-        if (particle_systems.Count > 0) //removes inactive particle systems to reduce memory usage
-            if (!particle_systems[0].GetComponent<ParticleSystem>().IsAlive())
+        if (ParticleSystems.Count > 0) //removes inactive particle systems to reduce memory usage
+            if (!ParticleSystems[0].GetComponent<ParticleSystem>().IsAlive())
             {
-                Destroy(particle_systems[0]);
-                particle_systems.RemoveAt(0);
+                Destroy(ParticleSystems[0]);
+                ParticleSystems.RemoveAt(0);
             }
 
     }
@@ -110,48 +138,101 @@ public class Weapon_Controller : MonoBehaviour {
 
     void Fire()
     {
-        if (Equipped_Gun.Shoot())
+        if (EquippedGun.Shoot())
         {
             RaycastHit hit;
-            if (Physics.Raycast(Player_Camera_Transform.position, Player_Camera_Transform.forward, out hit))
+            if (Physics.Raycast(PlayerCamera.transform.position, CalculateShotVector(), out hit))
             {
                 if (hit.transform.tag == "Enemy") //check if enemy is hit
                 {
                     Enemy enemy = hit.transform.GetComponent<Enemy>(); //get enemy controller component
                     Debug.Log("Hit enemy: " + enemy.Get_Name());
-                    enemy.Hit(Equipped_Gun.Get_Damage()); //call hit on enemy
-                    Hit_Marker_Animator.SetTrigger("Hit"); //trigger hit marker animation (placeholder animation)
-                    particle_systems.Add((GameObject)Instantiate(Enemy_Hit_vfx, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enemy
+                    enemy.Hit(EquippedGun.GetDamage()); //call hit on enemy
+                    HitMarkerAnimation.SetTrigger("Hit"); //trigger hit marker animation (placeholder animation)
+                    ParticleSystems.Add((GameObject)Instantiate(EnemyHitVFX, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enemy
                 }
                 else //if missed enemy
                 {
                     Debug.Log("hit:" + hit.transform.name); //print object hit
-                    particle_systems.Add((GameObject)Instantiate(Enviroment_Hit_vfx, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enviroment
+                    ParticleSystems.Add((GameObject)Instantiate(EnviromentHitVFX, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enviroment
                 }
             }
 
-            GameObject muzzle_flash = (GameObject)Instantiate(Muzzle_Flash, Fire_Point.transform.position, Quaternion.identity); //instatiate muzzle flash
-            muzzle_flash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
-            particle_systems.Add(muzzle_flash); //add to particle system list
+            GameObject MuzzleFlash = (GameObject)Instantiate(MuzzleFlash, Fire_Point.transform.position, Quaternion.identity); //instatiate muzzle flash
+            MuzzleFlash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
+            ParticleSystems.Add(MuzzleFlash); //add to particle system list
 
         }
         else
             Debug.Log("Please Reload");
 
-        Update_Ammo();
+        UpdateAmmo();
 
     }
 
-    private void Update_Ammo()
+    private Vector3 CalculateShotVector()
+    {
+        /*
+         * calculate the Vector3 of the next bullet based on sustained fire and weapon accuracy
+         */
+        return Vector3.Scale(GenerateOffsetVector(CalculateAccuracy()), PlayerCamera.transform.forward);
+    }
+
+    private Vector3 GenerateOffsetVector(float accuracy)
+    {
+        /*
+         * generates a random vector3 where the values are offset around 1 by the current accuracy
+         */
+        return new Vector3(Random.Range(accuracy, 2f - accuracy), Random.Range(accuracy, 2f - accuracy), Random.Range(accuracy, 2f - accuracy));
+    }
+
+    private float CalculateAccuracy()
+    {
+        /*
+         * calculates the accuracy for each shot (based on shooting position (aiming, hip fire) and sustained fire)
+         * for the first few shots of sustained fire the accuracy is not reduced
+         * after the first few rounds the accuracy starts to reduce based on the following function:
+         * y=z+(1-z)/(1+x/2)
+         * where:
+         *      y - calculated accuracy
+         *      z - minimum accuracy (which is the gun accuracy multiplied by 0.7 (0.85 when aiming))
+         *      x - number of bullets fired in a row (divided by 2 to slow accuracy reduction rate)
+         */
+
+        //accuracy is not reduced on the first 4 shots
+        if (SustainedFireCount < 5)
+        {
+            //higher accuacy when aiming
+            if(Aiming)
+                return GunAccuracy;
+            //lower accuracy for hip fire
+            else
+                return GunAccuracy * 0.85f;  
+        }
+        else
+        {
+            //higher accuacy when aiming
+            float min_accuracy;
+            if (Aiming)
+                min_accuracy = GunAccuracy * 0.85f;
+            //lower accuracy for hip fire
+            else
+                min_accuracy = GunAccuracy * 0.7f;
+
+            return min_accuracy + (1 - min_accuracy) / (1 + SustainedFireCount/2);
+        } 
+    }
+
+    private void UpdateAmmo()
     {
         //update ammo counter UI
-        Ammo_Textbox.text = Equipped_Gun.Get_Current_Ammo() + " / " + Equipped_Gun.Get_Magazine_Size();
+        AmmoTextbox.text = EquippedGun.GetCurrentAmmo() + " / " + EquippedGun.GetMagazineSize();
     }
 
-    public void Set_Gun(Gun new_gun)
+    public void Equip_Gun(Gun NewGun) //TODO: add weapon fire point
     {
         //equips new gun and displays the ammo
-        Equipped_Gun = new_gun;
-        Update_Ammo();
+        EquippedGun = NewGun;
+        UpdateAmmo();
     }
 }

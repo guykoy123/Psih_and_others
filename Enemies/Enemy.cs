@@ -17,18 +17,18 @@ public class Enemy : MonoBehaviour{
     private float Heal_Delay = 3f; //time in seconds between each heal
 
     private GameObject Enemy_UI; //stores the Enemy_UI object (has all the UI elemnets as children)
-    private GameObject Player_Camera; //stores the player camera (to update rotation of UI)
+    private GameObject PlayerCamera; //stores the player camera (to update rotation of UI)
 
     
 
     private void Start()
     {
         Enemy_UI = GameObject.Find("Enemy_UI"); //get the Enemy_UI object
-        Player_Camera = GameObject.Find("Player_Camera"); //get the player camera object
+        PlayerCamera = GameObject.Find("PlayerCamera"); //get the player camera object
     }
     private void Update()
     {
-        Enemy_UI.transform.LookAt(Player_Camera.transform); //rotate Enemy_UI to face player camera
+        Enemy_UI.transform.LookAt(PlayerCamera.transform); //rotate Enemy_UI to face player camera
         Enemy_UI.transform.Rotate(new Vector3(0, 180, 0)); //rotate Enemy_UI so text will not be backwards
 
         string text_box = enemy_name + "\n" + "Health:" + (int)current_health + "/" + (int)base_health; //generate text for the text box (name, health info [as whole numbers])
@@ -83,7 +83,7 @@ public class Enemy : MonoBehaviour{
     public void Set_Current_Health(float health) { current_health = Mathf.Clamp(health, 0f, base_health); }//set current health (between 0 and base enemy health)
     public float Get_Defense() { return defense; } //return enemy defense
     public void Set_Defense(float def) { defense = Mathf.Max(def, 0f); } //set defense (minimum value is 0)
-    public float Get_Damage() { return damage; } //return enemy damage
+    public float GetDamage() { return damage; } //return enemy damage
     public void Set_Damage(float d) { damage = Mathf.Max(d, 0f); }//set enemy damage (minimum value is 0)
     public float Get_Speed() { return speed; } //return enemy speed
     public void Set_Speed(float s) { speed = Mathf.Max(0f, s); } //set enemy speed (minimum value is 0)
