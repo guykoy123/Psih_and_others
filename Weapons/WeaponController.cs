@@ -158,9 +158,9 @@ public class WeaponController : MonoBehaviour {
                 }
             }
 
-            GameObject MuzzleFlash = (GameObject)Instantiate(MuzzleFlash, Fire_Point.transform.position, Quaternion.identity); //instatiate muzzle flash
-            MuzzleFlash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
-            ParticleSystems.Add(MuzzleFlash); //add to particle system list
+            GameObject NewMuzzleFlash = (GameObject)Instantiate(MuzzleFlash, Fire_Point.transform.position, Quaternion.identity); //instatiate muzzle flash
+            NewMuzzleFlash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
+            ParticleSystems.Add(NewMuzzleFlash); //add to particle system list
 
         }
         else
