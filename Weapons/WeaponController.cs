@@ -110,7 +110,8 @@ public class WeaponController : MonoBehaviour {
             //reloading
             if(Input.GetButtonDown("Reload") && !Reloading && !Aiming) //check if reload buttons is pressed while not reloading or aiming
             {
-                GunAnimator.SetTrigger("Reload");//trigger reload animation
+                //GunAnimator.SetTrigger("Reload");//trigger reload animation
+                GunAnimator.SetTrigger("Reload");
                 Reloading = true; //set reloading to true
             }
             else if(!GunAnimator.GetCurrentAnimatorStateInfo(0).IsName("Reload") && Reloading) //check if reload animation is finished
@@ -165,8 +166,7 @@ public class WeaponController : MonoBehaviour {
             NewMuzzleFlash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
             ParticleSystems.Add(NewMuzzleFlash); //add to particle system list
 
-            //CameraAnimator.SetTrigger("Recoil"); //trigger recoil camera animation
-            PlayerCamera.transform.localEulerAngles = Vector3.Lerp(PlayerCamera.transform.rotation.eulerAngles, new Vector3(0 ,0, 0), Time.deltaTime * PlayerCamera.transform.position.z);
+            CameraAnimator.SetTrigger("Recoil"); //trigger recoil camera animation
 
         }
         else

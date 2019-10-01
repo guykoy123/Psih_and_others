@@ -106,7 +106,7 @@ public class PlayerController : MonoBehaviour {
             {
                 SpeedMultiplier = SpeedMultiplier + SprintMultiplier; //update multiplier 
                 Sprinting = true;
-                GunAnimator.SetTrigger("Sprinting");
+                GunAnimator.SetBool("Sprinting",true);
             }
         }
         else if (Sprinting) //if button not pushed and was Sprinting
@@ -114,7 +114,7 @@ public class PlayerController : MonoBehaviour {
             Debug.Log("Stop sprint");
             SpeedMultiplier = SpeedMultiplier - SprintMultiplier; //return multiplier back to previouse value
             Sprinting = false;
-            GunAnimator.SetTrigger("StopSprinting");
+            GunAnimator.SetBool("Sprinting", false);
         }
 
 
