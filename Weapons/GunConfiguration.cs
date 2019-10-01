@@ -9,7 +9,7 @@ public class GunConfiguration {
     static int[] PistolFireRateRange = { 150, 200 };
     static int[] PistolDamageRange = { 10, 50 };
     static int[] PistolMagazineRange = { 6, 15 };
-    static float[] PistolAccuracyRange = { 0.88f, 0.97f };
+    static float[] PistolAccuracyRange = { 0.92f, 0.97f };
 
     static int[] ShotgunFireRateRange = { 60, 120 };
     static int[] ShotgunDamageRange = { 100, 200 };
@@ -19,7 +19,7 @@ public class GunConfiguration {
     static int[] SMGFireRateRange = { 400, 600 };
     static int[] SMGDamageRange = { 20, 60 };
     static int[] SMGMagazineRange = { 20, 50 };
-    static float[] SMGAccuracyRange = { 0.8f, 0.9f };
+    static float[] SMGAccuracyRange = { 0.9f, 0.97f };
 
     static int[] RifleFireRateRange = { 300, 500 };
     static int[] RifleDamageRange = { 40, 80 };

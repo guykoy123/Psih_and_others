@@ -21,9 +21,9 @@ public class WeaponController : MonoBehaviour {
     private int SustainedFireCount = 0;//tracks the amount of bullets fired without releasing the trigger
 
     //multipliers
-    private float MovingMultiplier = 0.8f;//reduces accuracy when player is moving
-    private float StandingMultiplier = 0.9f;//reduces accuracy when player is standing up (not Crouching)
-    private float HipFireMultiplier = 0.8f;//reduces accuracy when player is firing from the hip
+    private float MovingMultiplier = 0.9f;//reduces accuracy when player is moving
+    private float StandingMultiplier = 0.95f;//reduces accuracy when player is standing up (not Crouching)
+    private float HipFireMultiplier = 0.95f;//reduces accuracy when player is firing from the hip
 
     //constants
     private const float ZoomRate = 100f; //stores the zoom rate (higher number is faster zoom)
@@ -37,11 +37,13 @@ public class WeaponController : MonoBehaviour {
 
     public GameObject EnviromentHitVFX; //stores the effect of hitting enviroment (placeholder) need to add different types based on what was hit
     public GameObject EnemyHitVFX; //stores the effect of hitting enemy (placeholder) need to add different types based on what was hit
+    public GameObject BulletHole; //stores the bullethole object (spawned where the bullet hits)
 
     //GameObjects
     private Animator GunAnimator; //stores the gun animator (used to control gun animations)
     private Animator HitMarkerAnimation; //stores the hit marker animator (used tp control hit marker animations)
     private Camera PlayerCamera; //stores the player camera
+    public Animator CameraAnimator; //stores the camera animator
     private PlayerController Player; //stores the player controller
     public Text AmmoTextbox; //stores the ammo display textbox
 
@@ -71,12 +73,12 @@ public class WeaponController : MonoBehaviour {
         if (EquippedGun != null)
         {
             //primary fire
-            if (EquippedGun.GetFiringMode() == 1 && Input.GetButtonDown("Fire1") && Time.time >= TimeToFire) //check if firing mode is semi and the player pressed fire and it is time to fire
+            if (EquippedGun.GetFiringMode() == 1 && Input.GetButtonDown("Fire1") && Time.time >= TimeToFire && !Player.isSprinting()) //check if firing mode is semi and the player pressed fire and it is time to fire and player isn't sprinting
             {
                 Fire();
                 TimeToFire = Time.time + (1 / (EquippedGun.GetFiringRate() * Time.deltaTime));
             }
-            else if (Input.GetButton("Fire1") && Time.time >= TimeToFire && EquippedGun.GetFiringMode() != 1) //check if fire button is pressed and its time to fire and fire mode is auto
+            else if (Input.GetButton("Fire1") && Time.time >= TimeToFire && EquippedGun.GetFiringMode() != 1 && !Player.isSprinting()) //check if fire button is pressed and its time to fire and fire mode is auto and player isn't sprinting
             {
                 if (SustainedFire)
                     SustainedFireCount++;
@@ -155,12 +157,16 @@ public class WeaponController : MonoBehaviour {
                 {
                     Debug.Log("hit:" + hit.transform.name); //print object hit
                     ParticleSystems.Add((GameObject)Instantiate(EnviromentHitVFX, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enviroment
+                    Instantiate(BulletHole, hit.point + Vector3.Scale(new Vector3(0.01f, 0.01f, 0.01f),hit.normal), Quaternion.LookRotation(hit.normal)); //instatiate bullet hole
                 }
             }
 
             GameObject NewMuzzleFlash = (GameObject)Instantiate(MuzzleFlash, Fire_Point.transform.position, Quaternion.identity); //instatiate muzzle flash
             NewMuzzleFlash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
             ParticleSystems.Add(NewMuzzleFlash); //add to particle system list
+
+            //CameraAnimator.SetTrigger("Recoil"); //trigger recoil camera animation
+            PlayerCamera.transform.localEulerAngles = Vector3.Lerp(PlayerCamera.transform.rotation.eulerAngles, new Vector3(0 ,0, 0), Time.deltaTime * PlayerCamera.transform.position.z);
 
         }
         else

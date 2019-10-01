@@ -43,7 +43,10 @@ public class PlayerController : MonoBehaviour {
     public Transform PlayerCamera;
     public Transform PlayerMesh;
 
-    CharacterController CharacterCtrl;
+    private CharacterController CharacterCtrl;
+
+    //animation
+    private Animator GunAnimator;
 
     //member input values (declare input variables public to prevent declaring every frame)
     float xInput;
@@ -55,6 +58,7 @@ public class PlayerController : MonoBehaviour {
     void Start ()
     {
         CharacterCtrl = GetComponent<CharacterController>();
+        GunAnimator = GameObject.Find("Weapon").GetComponent<Animator>();
     }
 
 
@@ -102,6 +106,7 @@ public class PlayerController : MonoBehaviour {
             {
                 SpeedMultiplier = SpeedMultiplier + SprintMultiplier; //update multiplier 
                 Sprinting = true;
+                GunAnimator.SetTrigger("Sprinting");
             }
         }
         else if (Sprinting) //if button not pushed and was Sprinting
@@ -109,6 +114,7 @@ public class PlayerController : MonoBehaviour {
             Debug.Log("Stop sprint");
             SpeedMultiplier = SpeedMultiplier - SprintMultiplier; //return multiplier back to previouse value
             Sprinting = false;
+            GunAnimator.SetTrigger("StopSprinting");
         }
 
 
@@ -171,7 +177,7 @@ public class PlayerController : MonoBehaviour {
 
     public bool isCrouching() { return Crouching; } //returns if player is crouching
     public bool isMoving() { return Moving; }//returns if player is moving
-
+    public bool isSprinting() { return Sprinting; }//returns if the player is sprinting
 
 
     public override string ToString()

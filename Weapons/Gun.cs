@@ -123,6 +123,7 @@ public class Gun
         text += ", Fire Rate: " + FireRate.ToString();
         text += ", Firing mode: " + FiringMode;
         text += ",Zoom value: " + ZoomValue;
+        text += ", Accuracy: " + Accuracy;
         return text;
     }
 }
