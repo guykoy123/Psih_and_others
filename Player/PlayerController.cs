@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour {
         //returns the movement type (crouce,sprint,prone)
 
         //check if sprint button is pushed
-        if (Input.GetButton("Sprint") && !Crouching)
+        if (Input.GetButton("Sprint") && !Crouching && (Input.GetButton("Horizontal") || Input.GetButton("Vertical")))
         {
             Debug.Log("Sprint");
             if (!Sprinting)
