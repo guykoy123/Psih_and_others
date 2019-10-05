@@ -46,8 +46,7 @@ public class WeaponController : MonoBehaviour {
     public Animator CameraAnimator; //stores the camera animator
     private PlayerController Player; //stores the player controller
     public Text AmmoTextbox; //stores the ammo display textbox
-
-    private List<GameObject> ParticleSystems = new List<GameObject>(); //stores all particle systems that are created (these are destroyed at the end of their animation)
+    private GarbageCollector Garbage;//collects garbage to be destroyed to prevent resource hogging
 
     // Use this for initialization
     void Start () {
@@ -58,6 +57,7 @@ public class WeaponController : MonoBehaviour {
         HitMarkerAnimation = GameObject.Find("HitMarker").GetComponent<Animator>(); //load the hit marker animator
         PlayerCamera = GameObject.Find("PlayerCamera").GetComponent<Camera>();//load player camera
         Player = GameObject.Find("Player").GetComponent<PlayerController>(); //load player
+        Garbage = GameObject.Find("GarbageCollector").GetComponent<GarbageCollector>();
 
         PlayerFOV = PlayerCamera.fieldOfView; //get player FOV
 
@@ -127,15 +127,6 @@ public class WeaponController : MonoBehaviour {
             PlayerCamera.fieldOfView = Mathf.MoveTowards(PlayerCamera.fieldOfView, PlayerFOV - EquippedGun.GetZoomValue(), ZoomRate * Time.deltaTime); //zoom in to (base player FOV - the gun zoom), at spesific zoom rate
         else
             PlayerCamera.fieldOfView = Mathf.MoveTowards(PlayerCamera.fieldOfView, PlayerFOV, ZoomRate * Time.deltaTime); //zoom out to the base player FOV, at spesific zoom rate
-
-
-        if (ParticleSystems.Count > 0) //removes inactive particle systems to reduce memory usage
-            if (!ParticleSystems[0].GetComponent<ParticleSystem>().IsAlive())
-            {
-                Destroy(ParticleSystems[0]);
-                ParticleSystems.RemoveAt(0);
-            }
-
     }
 
 
@@ -152,19 +143,20 @@ public class WeaponController : MonoBehaviour {
                     Debug.Log("Hit enemy: " + enemy.GetName());
                     enemy.Hit(EquippedGun.GetDamage()); //call hit on enemy
                     HitMarkerAnimation.SetTrigger("Hit"); //trigger hit marker animation (placeholder animation)
-                    ParticleSystems.Add((GameObject)Instantiate(EnemyHitVFX, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enemy
+                    Garbage.AddParticleSystem(((GameObject)Instantiate(EnemyHitVFX, hit.point, Quaternion.LookRotation(hit.normal))));//instatiate hit effect for enemy
+
                 }
                 else //if missed enemy
                 {
                     Debug.Log("hit:" + hit.transform.name); //print object hit
-                    ParticleSystems.Add((GameObject)Instantiate(EnviromentHitVFX, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enviroment
+                    Garbage.AddParticleSystem((GameObject)Instantiate(EnviromentHitVFX, hit.point, Quaternion.LookRotation(hit.normal))); //instatiate hit effect for enviroment
                     Instantiate(BulletHole, hit.point + Vector3.Scale(new Vector3(0.01f, 0.01f, 0.01f),hit.normal), Quaternion.LookRotation(hit.normal)); //instatiate bullet hole
                 }
             }
 
             GameObject NewMuzzleFlash = (GameObject)Instantiate(MuzzleFlash, Fire_Point.transform.position, Quaternion.identity); //instatiate muzzle flash
             NewMuzzleFlash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
-            ParticleSystems.Add(NewMuzzleFlash); //add to particle system list
+            Garbage.AddParticleSystem(NewMuzzleFlash); //add to particle system list
 
             CameraAnimator.SetTrigger("Recoil"); //trigger recoil camera animation
 

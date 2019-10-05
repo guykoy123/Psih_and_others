@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour{
 
@@ -19,12 +20,16 @@ public class Enemy : MonoBehaviour{
     private GameObject EnemyUI; //stores the EnemyUI object (has all the UI elemnets as children)
     private GameObject PlayerCamera; //stores the player camera (to update rotation of UI)
 
-    
+    public GameObject HealParticleSystem;
+    public GameObject DamageParticleSystem;
+
+    private GarbageCollector Garbage; //collects garbage to be destroyed to prevent resource hogging
 
     private void Start()
     {
         EnemyUI = GameObject.Find("EnemyUI"); //get the EnemyUI object
         PlayerCamera = GameObject.Find("PlayerCamera"); //get the player camera object
+        Garbage = GameObject.Find("GarbageCollector").GetComponent<GarbageCollector>();
     }
     private void Update()
     {
@@ -46,6 +51,9 @@ public class Enemy : MonoBehaviour{
         float amount = Damage - Defense; //calculate how much health needs to be reduced
         if (amount>0f) //check that amount is positive (Defense does not exceed Damage)
             CurrentHealth -= amount; //reduce amount from current health
+
+        DamageParticleSystem.GetComponentInChildren<Text>().text = ((int)amount).ToString();//set damage amount for damage indicator (convert to int to remove decimal places)
+        Garbage.AddParticleSystem(Instantiate(DamageParticleSystem)); //create damage particle system
 
         if (CurrentHealth > 0)//check if enemy has health
         {
@@ -72,6 +80,9 @@ public class Enemy : MonoBehaviour{
             Debug.Log(name + " healed: " + amount);
             CanHeal = false; //because enemy just healed, set CanHeal to false
             LastHealTime = Time.time; //update last healing time
+            
+            HealParticleSystem.GetComponentInChildren<Text>().text=((int)amount).ToString();//set heal amount for heal indicator (convert to int to remove decimal places)
+            Garbage.AddParticleSystem(Instantiate(HealParticleSystem)); //create heal particle system
         }
         return CanHeal;
     }
