@@ -12,7 +12,7 @@ public class WeaponController : MonoBehaviour {
 
     Gun EquippedGun; //currently equipped gun
 
-    public GameObject Fire_Point; //holds the empty game object that is located at the end of the barrel (where the muzzle flash is spawned)
+    
 
     //tracks the states of the gun
     private bool Aiming = false; //tracks if player is aiming
@@ -40,12 +40,16 @@ public class WeaponController : MonoBehaviour {
     public GameObject BulletHole; //stores the bullethole object (spawned where the bullet hits)
 
     //GameObjects
-    private Animator GunAnimator; //stores the gun animator (used to control gun animations)
-    private Animator HitMarkerAnimation; //stores the hit marker animator (used tp control hit marker animations)
+    private GameObject FirePoint; //holds the empty game object that is located at the end of the barrel (where the muzzle flash is spawned)
     private Camera PlayerCamera; //stores the player camera
-    public Animator CameraAnimator; //stores the camera animator
     private PlayerController Player; //stores the player controller
     public Text AmmoTextbox; //stores the ammo display textbox
+
+    //Animtors
+    private Animator GunAnimator; //stores the gun animator (used to control gun animations)
+    private Animator HitMarkerAnimation; //stores the hit marker animator (used tp control hit marker animations)
+    public Animator CameraAnimator; //stores the camera animator
+
     private GarbageCollector Garbage;//collects garbage to be destroyed to prevent resource hogging
 
     // Use this for initialization
@@ -61,14 +65,20 @@ public class WeaponController : MonoBehaviour {
 
         PlayerFOV = PlayerCamera.fieldOfView; //get player FOV
 
-        //display ammo if gun is equipped
+        //if gun is equipped
         if(EquippedGun != null)
-            UpdateAmmo();
+        {
+            FirePoint = GameObject.Find("FirePoint");//load fire point from the weapon currently equipped
+            UpdateAmmo(); //display ammo
+            GunAnimator.SetInteger("GunType", EquippedGun.GetTypeCode());
+        }
+            
     }
 
     // Update is called once per frame
     void Update ()
     {
+        Debug.Log(GunAnimator.GetInteger("GunType"));
         //check if gun equipped
         if (EquippedGun != null)
         {
@@ -154,15 +164,15 @@ public class WeaponController : MonoBehaviour {
                 }
             }
 
-            GameObject NewMuzzleFlash = (GameObject)Instantiate(MuzzleFlash, Fire_Point.transform.position, Quaternion.identity); //instatiate muzzle flash
-            NewMuzzleFlash.transform.parent = Fire_Point.transform; //set as child of Fire_Point (will follow its position)
+            GameObject NewMuzzleFlash = (GameObject)Instantiate(MuzzleFlash, FirePoint.transform.position, Quaternion.identity); //instatiate muzzle flash
+            NewMuzzleFlash.transform.parent = FirePoint.transform; //set as child of FirePoint (will follow its position)
             Garbage.AddParticleSystem(NewMuzzleFlash); //add to particle system list
 
             CameraAnimator.SetTrigger("Recoil"); //trigger recoil camera animation
 
         }
-        else
-            Debug.Log("Please Reload");
+        else //no ammo
+            Debug.Log("Please Reload"); //TODO: display reload message
 
         UpdateAmmo();
 
@@ -247,10 +257,19 @@ public class WeaponController : MonoBehaviour {
         return false;
     }
 
-    public void EquipGun(Gun NewGun) //TODO: add weapon fire point
+    public void EquipGun(Gun NewGun) 
     {
-        //equips new gun and displays the ammo
-        EquippedGun = NewGun;
-        UpdateAmmo();
+        /* equip new gun
+         * displays the ammo
+         * load the guns fire point
+         * update gun type in the animator
+         */
+         //TODO: needs to load gun into scene
+
+        EquippedGun = NewGun; //equip new gun
+        UpdateAmmo(); //display ammo
+        FirePoint = GameObject.Find("FirePoint");//load fire point
+        GunAnimator.SetInteger("GunType", EquippedGun.GetTypeCode());
+        Instantiate(EquippedGun.GetWeaponMesh(), gameObject.transform); //load the weapon into the scene as child of WeaponController
     }
 }

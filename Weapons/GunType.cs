@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GunTypes
+public class GunType
 {
     string TypeName = ""; //can be: pistol - 1, shotgun - 2, smg - 3, assault rifle - 4, lmg - 5, sniper - 6, rpg - 7
     int type_code = 0;
 
-    public GunTypes(int type)
+    public GunType(int type)
     {
         /* 
         in:  gun type (by number) and firing mode (defaul is auto and semi)

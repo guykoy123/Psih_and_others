@@ -10,7 +10,9 @@ public class Gun
     int RarityCode;
     string RarityName;
 
-    GunTypes Type;
+    GunType Type;
+
+    GameObject WeaponMesh;
 
     //firing mode: 0 - auto, 1 - semi
     int FiringMode = 0; 
@@ -28,8 +30,11 @@ public class Gun
 
     public Gun(int type,int rarity = 0, int FireMode = 0)
     {
-        //create GunTypes object
-        Type = new GunTypes(type);
+        //create GunType object and save it
+        Type = new GunType(type);
+
+        //load randome weapon model
+        LoadWeaponMesh();
 
         //check fire mode legal and save
         SetFiringMode(FireMode);
@@ -83,17 +88,25 @@ public class Gun
         this.RarityCode = rarity;
     }
 
-
+    private void LoadWeaponMesh()
+    {
+        //loads random weapon model based on the set weapon type
+        //TODO add random loader
+        WeaponMesh = Resources.Load<GameObject>("Prefabs/Weapons/Handguns/Handgun01");
+    }
+    public GameObject GetWeaponMesh() { return WeaponMesh;}
     public float GetFiringRate() { return FireRate; }
     public float GetDamage() { return Damage; }
-    public string Get_Rarity() { return RarityName; }
+    public string GetRarity() { return RarityName; }
     public int GetFiringMode() { return FiringMode; }
     public float GetZoomValue() { return ZoomValue; }
     public float GetAccuracy() { return Accuracy; }
     public int GetCurrentAmmo() { return CurrentAmmo; }
     public int GetMagazineSize() { return MagazineSize; }
-    public GameObject Get_MuzzleFlash() { return MuzzleFlash; }
-
+    public GameObject GetMuzzleFlash() { return MuzzleFlash; }
+    public int GetTypeCode() { return Type.GetTypeCode(); }
+    public GunType GetType() { return Type; }
+   
     public bool Shoot()
     {
         //check if the magazine is not empty
