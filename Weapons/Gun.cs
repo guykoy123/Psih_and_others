@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.IO;
 
 public class Gun
 {
@@ -91,9 +93,12 @@ public class Gun
     private void LoadWeaponMesh()
     {
         //loads random weapon model based on the set weapon type
-        //TODO add random loader
-        WeaponMesh = Resources.Load<GameObject>("Prefabs/Weapons/Handguns/Handgun01");
+        var files = Directory.GetFiles(Directory.GetCurrentDirectory()+ "\\Assets\\Resources\\Prefabs\\Weapons\\"+Type.GetTypeName(), "*.prefab"); //get all model files from the gun type folder
+        int index = new System.Random().Next(0, files.Length); //pick random file
+        Debug.Log(index);
+        WeaponMesh = Resources.Load<GameObject>("Prefabs\\Weapons\\"+Type.GetTypeName()+"\\"+Path.GetFileNameWithoutExtension(files[index])); //load weapon model
     }
+
     public GameObject GetWeaponMesh() { return WeaponMesh;}
     public float GetFiringRate() { return FireRate; }
     public float GetDamage() { return Damage; }

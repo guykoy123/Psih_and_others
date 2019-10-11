@@ -25,7 +25,7 @@ public class GunType
         switch (type)
         {
             case 1:
-                this.TypeName = "Pistol";
+                this.TypeName = "Handgun";
                 break;
             case 2:
                 this.TypeName = "Shotgun";

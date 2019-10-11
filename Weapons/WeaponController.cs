@@ -78,7 +78,6 @@ public class WeaponController : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
-        Debug.Log(GunAnimator.GetInteger("GunType"));
         //check if gun equipped
         if (EquippedGun != null)
         {
