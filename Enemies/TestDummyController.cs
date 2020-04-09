@@ -15,14 +15,13 @@ public class TestDummyController : MonoBehaviour {
         Enemy.SetBaseHealth(1000f);//set base health to 1000
         Enemy.SetCurrentHealth(1000f);//update current health to base health
         Enemy.SetName("Test Dummy");//set enemy name
-
-        Enemy.SetHealDelay(0.8f); //set low heal delay because dummy can not die
+        Enemy.SetHealAmount(150f);
 	}
 	
 	// Update is called once per frame
 	void Update ()
     {
         if (Enemy.GetCurrentHealth() < Enemy.GetBaseHealth()) //check if recieved Damage
-            Debug.Log(Enemy.Heal(Enemy.GetBaseHealth() - Enemy.GetCurrentHealth())); //heal to full health
+            Enemy.Heal();
     }
 }

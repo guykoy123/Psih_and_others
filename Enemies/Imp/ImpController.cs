@@ -24,6 +24,10 @@ public class ImpController : MonoBehaviour {
     bool Attacking = false;
     bool DeathAnimation = false;
 
+    private bool CanHeal = false; //stores if the enemy can heal
+    private float LastHealTime = 0f; //strores the last time enemy healed
+    private float HealDelay = 3f; //time in seconds between each heal
+
     // Use this for initialization
     void Start () {
         Controller = GetComponent<CharacterController>();
@@ -36,6 +40,7 @@ public class ImpController : MonoBehaviour {
         Enemy.SetCurrentHealth(150f);//update current health to base health
         Enemy.SetName("Imp");//set enemy name
         Enemy.SetDamage(10f);
+        Enemy.SetHealAmount(25f);
     }
 	
 	// Update is called once per frame
@@ -75,6 +80,13 @@ public class ImpController : MonoBehaviour {
             if ((ImpAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !ImpAnimator.IsInTransition(0)) && Attacking)
                 Attacking = false; //not attacking now
 
+
+            if (Time.time - LastHealTime >= HealDelay) //if enough time has passed since healing
+            {
+                CanHeal = true; //enemy can heal
+                Heal();
+            }
+                
 
         }
         else
@@ -128,5 +140,18 @@ public class ImpController : MonoBehaviour {
         movement.y = ySpeed;
 
         Controller.Move((movement) * Time.deltaTime);
+    }
+
+    private void Heal()
+    {
+        //heals enemy
+        //does not exceed the base health
+
+        if (Enemy.GetCurrentHealth() < Enemy.GetBaseHealth() && CanHeal) //check if current health is lower than base health (maximum health)
+        {
+            Enemy.Heal();
+            CanHeal = false; //because enemy just healed, set CanHeal to false
+            LastHealTime = Time.time; //update last healing time
+        }
     }
 }

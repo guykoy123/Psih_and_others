@@ -9,15 +9,12 @@ public class Enemy : MonoBehaviour{
     private float CurrentHealth;
     private float Defense;
     private float Damage;
+    private float HealAmount;
     private float Speed;
     private float JumpForce;
     private string EnemyName;
     private bool Dead = false;
     private bool PlayedDeadAnimation = false;
-
-    private bool CanHeal = false; //stores if the enemy can heal
-    private float LastHealTime=0f; //strores the last time enemy healed
-    private float HealDelay = 3f; //time in seconds between each heal
 
     private TextMesh EnemyUI; //stores the EnemyUI object (has all the UI elemnets as children)
     private GameObject PlayerCamera; //stores the player camera (to update rotation of UI)
@@ -41,9 +38,6 @@ public class Enemy : MonoBehaviour{
 
         string text_box = EnemyName + "\n" + "Health:" + (int)CurrentHealth + "/" + (int)BaseHealth; //generate text for the text box (name, health info [as whole numbers])
         EnemyUI.text = text_box; //update textbox
-
-        if (Time.time - LastHealTime >= HealDelay) //if enough time has passed since healing
-            CanHeal = true; //enemy can heal
     }
 
     public void Hit(float Damage) 
@@ -67,23 +61,20 @@ public class Enemy : MonoBehaviour{
             
     } 
 
-    public bool Heal(float amount) 
+    public void Heal() 
     {
         //heals enemy
         //does not exceed the base health
 
-        if(CurrentHealth < BaseHealth && CanHeal) //check if current health is lower than base health (maximum health)
+        if(CurrentHealth < BaseHealth) //check if current health is lower than base health (maximum health)
         {
-            CurrentHealth += amount; //add healing amount to current health
+            CurrentHealth += HealAmount; //add healing amount to current health
             CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, BaseHealth); //clamp current health to not exceed base health
-            Debug.Log(name + " healed: " + amount);
-            CanHeal = false; //because enemy just healed, set CanHeal to false
-            LastHealTime = Time.time; //update last healing time
+            Debug.Log(name + " healed: " + HealAmount);
             
-            HealParticleSystem.GetComponentInChildren<Text>().text=((int)amount).ToString();//set heal amount for heal indicator (convert to int to remove decimal places)
+            HealParticleSystem.GetComponentInChildren<Text>().text=((int)HealAmount).ToString();//set heal amount for heal indicator (convert to int to remove decimal places)
             Garbage.AddParticleSystem(Instantiate(HealParticleSystem,transform)); //create heal particle system
         }
-        return CanHeal;
     }
 
     public bool CanDespwan()
@@ -108,11 +99,11 @@ public class Enemy : MonoBehaviour{
     public void SetJumpForce(float f) { JumpForce = Mathf.Max(0f, f); } //set jump force (minimum value is 0)
     public string GetName() { return EnemyName; }//return enemy name
     public void SetName(string n) { EnemyName = n; } //set enemy name
-    public void SetHealDelay(float delay) { HealDelay = delay; } //set heal delay time
-    public float GetHealDelay() { return HealDelay; }//return enemy heal delay time
     public bool IsDead() { return Dead;}//returns if enemy has dies
     public void PlayedDeadAnim() { PlayedDeadAnimation = true; }//called after death animation has been played
     public bool IsPLayedDeadAnim() { return PlayedDeadAnimation; } //returns if death animation has been played
+    public void SetHealAmount(float amount) { HealAmount = amount; }
+    public float GetHealAmount() { return HealAmount; }
 
 
 }

@@ -9,8 +9,8 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
     //player stats
-    float BaseHealth = 2000f;
-    float CurrentHealth = 2000f;
+    float BaseHealth = 200f;
+    float CurrentHealth = 200f;
     float Defense = 0f;
 
     //camera rotation
