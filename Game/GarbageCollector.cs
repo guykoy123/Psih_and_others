@@ -15,7 +15,22 @@ public class GarbageCollector : MonoBehaviour {
 	void Update ()
     {
         HandleActiveParticleSystems();
+        HandleDeadEnemies();
 	}
+
+    private void HandleDeadEnemies()
+    {
+        /*
+         * seaches the enemy list
+         * despawns all dead enemies
+         */
+        Enemy[] Enemies = GameObject.FindObjectsOfType<Enemy>();
+        foreach (Enemy enemy in Enemies)
+        {
+            if(enemy.CanDespwan())
+                Destroy(enemy.gameObject);
+        }
+    }
 
     private void HandleActiveParticleSystems()
     {
@@ -25,11 +40,15 @@ public class GarbageCollector : MonoBehaviour {
         {
             for (int i = 0; i < ActiveParticleSystems.Count; i++)
             {
-                if (!ActiveParticleSystems[i].GetComponent<ParticleSystem>().IsAlive())
-                {
-                    Destroy(ActiveParticleSystems[i]);//destroy inactive particle system
+                //check if there is an object in the list (some get destroyed by HandleDeadEnemies)
+                if(ActiveParticleSystems[i]==null)
                     ActiveParticleSystems.RemoveAt(i);//remove destroyed object from list
-                }
+                else
+                    if (!ActiveParticleSystems[i].GetComponent<ParticleSystem>().IsAlive())
+                    {
+                        Destroy(ActiveParticleSystems[i]);//destroy inactive particle system
+                        ActiveParticleSystems.RemoveAt(i);//remove destroyed object from list
+                    }
 
             }
         }

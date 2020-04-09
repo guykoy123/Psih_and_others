@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Threading;
+using UnityEngine.UI;
+
 
 
 public class PlayerController : MonoBehaviour {
-    
+    //player stats
+    float BaseHealth = 2000f;
+    float CurrentHealth = 2000f;
+    float Defense = 0f;
+
     //camera rotation
     float CameraYRotation = 0f; //current camera rotation
 
@@ -15,11 +21,11 @@ public class PlayerController : MonoBehaviour {
     float RotationLimitDown = -40f; //camera down limit rotation
 
     //Speed multipliers
-    private float Speed = 6f;// base player Speed when walking
+    private float Speed = 4f;// base player Speed when walking
     private float SpeedMultiplier = 1f; //current Speed multiplier 
 
     //Speed multiplier are added to the overall multiplier (for the ability to stack multipliers)
-    private float SprintMultiplier =0.5f; //Sprinting Speed multiplier
+    private float SprintMultiplier =0.6f; //Sprinting Speed multiplier
     private float CrouchMultiplier = -0.4f; //crouch Speed multiplier
 
     //actual Speed (just for debugging)
@@ -29,6 +35,7 @@ public class PlayerController : MonoBehaviour {
     private bool Moving = false;
     private bool Sprinting = false;
     private bool Crouching = false;
+    private bool Jump = false;
 
     //ajustable sesetivity
     [Range(0.1f,5f)] //set value range
@@ -42,11 +49,13 @@ public class PlayerController : MonoBehaviour {
 
     public Transform PlayerCamera;
     public Transform PlayerMesh;
+    public Text HealthText;
 
     private CharacterController CharacterCtrl;
 
     //animation
     private Animator GunAnimator;
+    private Animator PlayerAnimator;
 
     //member input values (declare input variables public to prevent declaring every frame)
     float xInput;
@@ -59,6 +68,8 @@ public class PlayerController : MonoBehaviour {
     {
         CharacterCtrl = GetComponent<CharacterController>();
         GunAnimator = GameObject.Find("Weapon").GetComponent<Animator>();
+        PlayerAnimator = GameObject.Find("PlayerModel").GetComponent<Animator>();
+
     }
 
 
@@ -71,9 +82,13 @@ public class PlayerController : MonoBehaviour {
             Moving = true;
         else
             Moving = false;
+            
         UpdateMovement(); //move player
-
+        UpdateAnimations(); //update animation to current state
         ActualSpeed = Speed * SpeedMultiplier; //just for debugging
+
+        UpdateHealthText();
+
     }
 
     void GetInput()
@@ -101,20 +116,20 @@ public class PlayerController : MonoBehaviour {
         //check if sprint button is pushed
         if (Input.GetButton("Sprint") && !Crouching && (Input.GetButton("Horizontal") || Input.GetButton("Vertical")))
         {
-            Debug.Log("Sprint");
             if (!Sprinting)
             {
                 SpeedMultiplier = SpeedMultiplier + SprintMultiplier; //update multiplier 
                 Sprinting = true;
                 GunAnimator.SetBool("Sprinting",true);
+                PlayerAnimator.SetBool("run", true);
             }
         }
         else if (Sprinting) //if button not pushed and was Sprinting
         {
-            Debug.Log("Stop sprint");
             SpeedMultiplier = SpeedMultiplier - SprintMultiplier; //return multiplier back to previouse value
             Sprinting = false;
             GunAnimator.SetBool("Sprinting", false);
+            PlayerAnimator.SetBool("run", false);
         }
 
 
@@ -153,9 +168,17 @@ public class PlayerController : MonoBehaviour {
         if (CharacterCtrl.isGrounded)
         {
             if (Input.GetButtonDown("Jump") && !Crouching) //if jump button is pressed jump and player is not Crouching
+            {
                 ySpeed = JumpSpeed;
+                Jump = true;
+            }
+                
             else
+            {
                 ySpeed = Gravity * Time.deltaTime; //if jump button is not pressed apply Gravity
+                Jump = false;
+            }
+                
         }
         else
             ySpeed += Gravity * Time.deltaTime; //if not grounded apply Gravity
@@ -175,9 +198,51 @@ public class PlayerController : MonoBehaviour {
         CharacterCtrl.Move((movement + new Vector3(0, ySpeed, 0)) * Time.deltaTime); //add vertical Speed to ground movement
     }
 
+
+    void UpdateAnimations()
+    {
+        //update animations based on player state (idle,walk,sprint)
+        if (isMoving() && !Jump)
+        {
+            if (isSprinting())
+                PlayerAnimator.SetBool("run", true);
+            else if (isCrouching())
+                Debug.Log("player crouch animation");
+            else
+                PlayerAnimator.SetBool("walk", true);
+        }
+        else
+        {
+            PlayerAnimator.SetBool("walk", false);
+            PlayerAnimator.SetBool("run",false);
+        }    
+    }
+
+
+    public void Hit(float damage)
+    {
+        CurrentHealth -= (damage - Defense);
+    }
+
+    void UpdateHealthText()
+    {
+        HealthText.text = CurrentHealth.ToString() + "/" + BaseHealth.ToString();
+        if (CurrentHealth < 0)
+            HealthText.text = "You are dead";
+    }
+
     public bool isCrouching() { return Crouching; } //returns if player is crouching
     public bool isMoving() { return Moving; }//returns if player is moving
     public bool isSprinting() { return Sprinting; }//returns if the player is sprinting
+
+    public void TriggerGunEquipAnim()
+    {
+        /*
+         * trigger gun equiping animation
+         * TODO: add different animation based on the gun equiped
+         */
+        PlayerAnimator.SetTrigger("WeaponEquip");
+    }
 
 
     public override string ToString()

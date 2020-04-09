@@ -21,9 +21,9 @@ public class WeaponController : MonoBehaviour {
     private int SustainedFireCount = 0;//tracks the amount of bullets fired without releasing the trigger
 
     //multipliers
-    private float MovingMultiplier = 0.9f;//reduces accuracy when player is moving
-    private float StandingMultiplier = 0.95f;//reduces accuracy when player is standing up (not Crouching)
-    private float HipFireMultiplier = 0.95f;//reduces accuracy when player is firing from the hip
+    private float MovingMultiplier = 0.95f;//reduces accuracy when player is moving
+    private float StandingMultiplier = 0.98f;//reduces accuracy when player is standing up (not Crouching)
+    private float HipFireMultiplier = 0.97f;//reduces accuracy when player is firing from the hip
 
     //constants
     private const float ZoomRate = 100f; //stores the zoom rate (higher number is faster zoom)
@@ -44,6 +44,7 @@ public class WeaponController : MonoBehaviour {
     private Camera PlayerCamera; //stores the player camera
     private PlayerController Player; //stores the player controller
     public Text AmmoTextbox; //stores the ammo display textbox
+    public Text ReloadTextBox; //stores the reload message
 
     //Animtors
     private Animator GunAnimator; //stores the gun animator (used to control gun animations)
@@ -72,6 +73,8 @@ public class WeaponController : MonoBehaviour {
             UpdateAmmo(); //display ammo
             GunAnimator.SetInteger("GunType", EquippedGun.GetTypeCode());
         }
+
+        ReloadTextBox.gameObject.SetActive(false); //disable reload message
             
     }
 
@@ -122,6 +125,7 @@ public class WeaponController : MonoBehaviour {
                 //GunAnimator.SetTrigger("Reload");//trigger reload animation
                 GunAnimator.SetTrigger("Reload");
                 Reloading = true; //set reloading to true
+                ReloadTextBox.gameObject.SetActive(false); //disable reload message
             }
             else if(!GunAnimator.GetCurrentAnimatorStateInfo(0).IsName("Reload") && Reloading) //check if reload animation is finished
             {
@@ -143,6 +147,7 @@ public class WeaponController : MonoBehaviour {
     {
         if (EquippedGun.Shoot())
         {
+            UpdateAmmo();
             RaycastHit hit;
             if (Physics.Raycast(PlayerCamera.transform.position, CalculateShotVector(), out hit))
             {
@@ -171,7 +176,12 @@ public class WeaponController : MonoBehaviour {
 
         }
         else //no ammo
-            Debug.Log("Please Reload"); //TODO: display reload message
+        {
+            Debug.Log("Please Reload");
+            ReloadTextBox.gameObject.SetActive(true); //activate reload message
+        }
+            
+            
 
         UpdateAmmo();
 
@@ -262,6 +272,7 @@ public class WeaponController : MonoBehaviour {
          * displays the ammo
          * load the guns fire point
          * update gun type in the animator
+         * trigger player animation for holding gun
          */
          //TODO: needs to load gun into scene
 
@@ -270,5 +281,6 @@ public class WeaponController : MonoBehaviour {
         FirePoint = GameObject.Find("FirePoint");//load fire point
         GunAnimator.SetInteger("GunType", EquippedGun.GetTypeCode());
         Instantiate(EquippedGun.GetWeaponMesh(), gameObject.transform); //load the weapon into the scene as child of WeaponController
+        GameObject.Find("Player").GetComponent<PlayerController>().TriggerGunEquipAnim(); //TODO: do this based on the gun
     }
 }

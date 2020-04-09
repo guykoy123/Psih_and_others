@@ -95,7 +95,6 @@ public class Gun
         //loads random weapon model based on the set weapon type
         var files = Directory.GetFiles(Directory.GetCurrentDirectory()+ "\\Assets\\Resources\\Prefabs\\Weapons\\"+Type.GetTypeName(), "*.prefab"); //get all model files from the gun type folder
         int index = new System.Random().Next(0, files.Length); //pick random file
-        Debug.Log(index);
         WeaponMesh = Resources.Load<GameObject>("Prefabs\\Weapons\\"+Type.GetTypeName()+"\\"+Path.GetFileNameWithoutExtension(files[index])); //load weapon model
     }
 

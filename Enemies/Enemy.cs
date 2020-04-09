@@ -12,12 +12,14 @@ public class Enemy : MonoBehaviour{
     private float Speed;
     private float JumpForce;
     private string EnemyName;
+    private bool Dead = false;
+    private bool PlayedDeadAnimation = false;
 
     private bool CanHeal = false; //stores if the enemy can heal
     private float LastHealTime=0f; //strores the last time enemy healed
     private float HealDelay = 3f; //time in seconds between each heal
 
-    private GameObject EnemyUI; //stores the EnemyUI object (has all the UI elemnets as children)
+    private TextMesh EnemyUI; //stores the EnemyUI object (has all the UI elemnets as children)
     private GameObject PlayerCamera; //stores the player camera (to update rotation of UI)
 
     public GameObject HealParticleSystem;
@@ -27,7 +29,8 @@ public class Enemy : MonoBehaviour{
 
     private void Start()
     {
-        EnemyUI = GameObject.Find("EnemyUI"); //get the EnemyUI object
+        //EnemyUI = GameObject.Find("EnemyUI"); //get the EnemyUI object
+        EnemyUI = GetComponentInChildren<TextMesh>();
         PlayerCamera = GameObject.Find("PlayerCamera"); //get the player camera object
         Garbage = GameObject.Find("GarbageCollector").GetComponent<GarbageCollector>();
     }
@@ -37,13 +40,13 @@ public class Enemy : MonoBehaviour{
         EnemyUI.transform.Rotate(new Vector3(0, 180, 0)); //rotate EnemyUI so text will not be backwards
 
         string text_box = EnemyName + "\n" + "Health:" + (int)CurrentHealth + "/" + (int)BaseHealth; //generate text for the text box (name, health info [as whole numbers])
-        EnemyUI.GetComponentInChildren<TextMesh>().text = text_box; //update textbox
+        EnemyUI.text = text_box; //update textbox
 
         if (Time.time - LastHealTime >= HealDelay) //if enough time has passed since healing
             CanHeal = true; //enemy can heal
     }
 
-    public bool Hit(float Damage) 
+    public void Hit(float Damage) 
     {
         //reduces current enemy health based on Damage and Defense
         //returns true when enemy still health after hit
@@ -53,19 +56,15 @@ public class Enemy : MonoBehaviour{
             CurrentHealth -= amount; //reduce amount from current health
 
         DamageParticleSystem.GetComponentInChildren<Text>().text = ((int)amount).ToString();//set damage amount for damage indicator (convert to int to remove decimal places)
-        Garbage.AddParticleSystem(Instantiate(DamageParticleSystem)); //create damage particle system
+        Garbage.AddParticleSystem(Instantiate(DamageParticleSystem,transform)); //create damage particle system
 
-        if (CurrentHealth > 0)//check if enemy has health
-        {
-            Debug.Log(EnemyName + " health: " + CurrentHealth);
-            return true; //return true because enemy is alive
-        }
-            
-        else
+        if (CurrentHealth <= 0)//check if enemy is dead
         {
             Debug.Log(EnemyName + " has died");
-            return false; //return false because enemy has died
+            Dead = true;
         }
+            
+            
     } 
 
     public bool Heal(float amount) 
@@ -82,9 +81,16 @@ public class Enemy : MonoBehaviour{
             LastHealTime = Time.time; //update last healing time
             
             HealParticleSystem.GetComponentInChildren<Text>().text=((int)amount).ToString();//set heal amount for heal indicator (convert to int to remove decimal places)
-            Garbage.AddParticleSystem(Instantiate(HealParticleSystem)); //create heal particle system
+            Garbage.AddParticleSystem(Instantiate(HealParticleSystem,transform)); //create heal particle system
         }
         return CanHeal;
+    }
+
+    public bool CanDespwan()
+    {
+        if (PlayedDeadAnimation)
+            return true;
+        return false;
     }
 
     //get/set function for all variables
@@ -104,5 +110,9 @@ public class Enemy : MonoBehaviour{
     public void SetName(string n) { EnemyName = n; } //set enemy name
     public void SetHealDelay(float delay) { HealDelay = delay; } //set heal delay time
     public float GetHealDelay() { return HealDelay; }//return enemy heal delay time
+    public bool IsDead() { return Dead;}//returns if enemy has dies
+    public void PlayedDeadAnim() { PlayedDeadAnimation = true; }//called after death animation has been played
+    public bool IsPLayedDeadAnim() { return PlayedDeadAnimation; } //returns if death animation has been played
+
 
 }
