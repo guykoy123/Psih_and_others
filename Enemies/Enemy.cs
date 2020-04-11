@@ -42,23 +42,26 @@ public class Enemy : MonoBehaviour{
 
     public void Hit(float Damage) 
     {
-        //reduces current enemy health based on Damage and Defense
-        //returns true when enemy still health after hit
-        //returns false when enemy has died
+        /*
+         * reduces current enemy health based on Damage and Defense
+         * returns true when enemy still health after hit
+         * returns false when enemy has died
+         */
+
         float amount = Damage - Defense; //calculate how much health needs to be reduced
-        if (amount>0f) //check that amount is positive (Defense does not exceed Damage)
-            CurrentHealth -= amount; //reduce amount from current health
+        amount = Mathf.Max(amount, 0); //damage needs to be not negative
 
-        DamageParticleSystem.GetComponentInChildren<Text>().text = ((int)amount).ToString();//set damage amount for damage indicator (convert to int to remove decimal places)
-        Garbage.AddParticleSystem(Instantiate(DamageParticleSystem,transform)); //create damage particle system
-
-        if (CurrentHealth <= 0)//check if enemy is dead
+        if (!Dead) //check that enemy is not dead
         {
-            Debug.Log(EnemyName + " has died");
-            Dead = true;
-        }
-            
-            
+            CurrentHealth -= amount; //reduce amount from current health
+            DamageParticleSystem.GetComponentInChildren<Text>().text = ((int)amount).ToString();//set damage amount for damage indicator (convert to int to remove decimal places)
+            Garbage.AddParticleSystem(Instantiate(DamageParticleSystem, transform)); //create damage particle system
+            if (CurrentHealth<=0)
+            {
+                Debug.Log(EnemyName + " has died");
+                Dead = true;
+            }
+        }    
     } 
 
     public void Heal() 

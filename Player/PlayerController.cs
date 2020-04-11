@@ -13,12 +13,6 @@ public class PlayerController : MonoBehaviour {
     float CurrentHealth = 200f;
     float Defense = 0f;
 
-    //camera rotation
-    float CameraYRotation = 0f; //current camera rotation
-
-    //camera rotation limit angles
-    float RotationLimitUp = 90f; //camera up limit rotation
-    float RotationLimitDown = -40f; //camera down limit rotation
 
     //Speed multipliers
     private float Speed = 4f;// base player Speed when walking
@@ -37,6 +31,13 @@ public class PlayerController : MonoBehaviour {
     private bool Crouching = false;
     private bool Jump = false;
 
+    //camera rotation
+    float CameraYRotation = 0f; //current camera rotation
+
+    //camera rotation limit angles
+    float RotationLimitUp = 90f; //camera up limit rotation
+    float RotationLimitDown = -40f; //camera down limit rotation
+
     //ajustable sesetivity
     [Range(0.1f,5f)] //set value range
     public float CameraSensetivity = 1f; //camera sestivity
@@ -50,7 +51,8 @@ public class PlayerController : MonoBehaviour {
     public Transform PlayerCamera;
     public Transform PlayerMesh;
     public Text HealthText;
-
+    public InventoryController Inventory;
+    private GameManager GameManager;
     private CharacterController CharacterCtrl;
 
     //animation
@@ -63,19 +65,26 @@ public class PlayerController : MonoBehaviour {
     float xMouse;
     float yMouse;
 
+    //UI
+    bool InventoryOpen = false;
+
+
     // Use this for initialization
     void Start ()
     {
         CharacterCtrl = GetComponent<CharacterController>();
         GunAnimator = GameObject.Find("Weapon").GetComponent<Animator>();
         PlayerAnimator = GameObject.Find("PlayerModel").GetComponent<Animator>();
-
+        GameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        Inventory.gameObject.SetActive(true);
     }
 
 
     void Update()
     {
-        GetInput(); //recieve user movement input
+        GetPlayerInput();
+
+        GetMovementInput(); //recieve user movement input
         
         //check if player is moving
         if (xInput != 0 || zInput != 0)
@@ -88,10 +97,9 @@ public class PlayerController : MonoBehaviour {
         ActualSpeed = Speed * SpeedMultiplier; //just for debugging
 
         UpdateHealthText();
-
     }
 
-    void GetInput()
+    void GetMovementInput()
     {
         //determines movement type
         //recieves moement input
@@ -107,6 +115,25 @@ public class PlayerController : MonoBehaviour {
         //get mouse input
         xMouse = Input.GetAxis("Mouse X") * CameraSensetivity;
         yMouse = Input.GetAxis("Mouse Y") * CameraSensetivity;
+    }
+
+    void GetPlayerInput()
+    {
+        if (Input.GetButtonDown("Inventory"))
+        {
+            if (InventoryOpen)
+            {
+                GameManager.ClosedMenu();
+                InventoryOpen = false;
+                Inventory.Close();
+            }
+            else
+            {
+                GameManager.OpenedMenu();
+                InventoryOpen = true;
+                Inventory.Open();
+            }
+        }
     }
 
     void GetMovementType()

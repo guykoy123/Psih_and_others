@@ -168,18 +168,17 @@ public class WeaponController : MonoBehaviour {
                 }
             }
 
+            /* TODO: implement muzzle flash
             GameObject NewMuzzleFlash = (GameObject)Instantiate(MuzzleFlash, FirePoint.transform.position, Quaternion.identity); //instatiate muzzle flash
             NewMuzzleFlash.transform.parent = FirePoint.transform; //set as child of FirePoint (will follow its position)
             Garbage.AddParticleSystem(NewMuzzleFlash); //add to particle system list
+            */
 
             CameraAnimator.SetTrigger("Recoil"); //trigger recoil camera animation
 
         }
         else //no ammo
-        {
-            Debug.Log("Please Reload");
             ReloadTextBox.gameObject.SetActive(true); //activate reload message
-        }
             
             
 
