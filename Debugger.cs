@@ -19,7 +19,6 @@ public class Debugger : MonoBehaviour {
     {
         text = Player.ToString();
         text += "\r\n";
-        text += game.Test();
         TextBox.text = text;
 	}
 }

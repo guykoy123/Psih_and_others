@@ -46,7 +46,6 @@ public class Gun
 
         //randomize gun stats based on rarity and type
         float[] stats = GunConfiguration.GenerateStats(Type.GetTypeCode(),RarityCode);
-        Debug.Log(stats[4]);
         //save stats
         FireRate = stats[0];
         Damage = stats[1];
@@ -138,9 +137,10 @@ public class Gun
         text += ", Rarity: " + RarityName;
         text += ", Damage: " + Damage.ToString();
         text += ", Fire Rate: " + FireRate.ToString();
-        text += ", Firing mode: " + FiringMode;
+        text += ",\r\n Firing mode: " + FiringMode;
         text += ",Zoom value: " + ZoomValue;
         text += ", Accuracy: " + Accuracy;
+        text += ", Magazine size: " + MagazineSize;
         return text;
     }
 }

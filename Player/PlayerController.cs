@@ -84,16 +84,20 @@ public class PlayerController : MonoBehaviour {
     {
         GetPlayerInput();
 
-        GetMovementInput(); //recieve user movement input
+        if (!GameManager.IsMenuOpen()) //make sure menu is not opened
+        {
+            GetMovementInput(); //recieve user movement input
+
+            //check if player is moving
+            if (xInput != 0 || zInput != 0)
+                Moving = true;
+            else
+                Moving = false;
+
+            UpdateMovement(); //move player
+            UpdateAnimations(); //update animation to current state
+        }
         
-        //check if player is moving
-        if (xInput != 0 || zInput != 0)
-            Moving = true;
-        else
-            Moving = false;
-            
-        UpdateMovement(); //move player
-        UpdateAnimations(); //update animation to current state
         ActualSpeed = Speed * SpeedMultiplier; //just for debugging
 
         UpdateHealthText();
@@ -120,20 +124,26 @@ public class PlayerController : MonoBehaviour {
     void GetPlayerInput()
     {
         if (Input.GetButtonDown("Inventory"))
-        {
-            if (InventoryOpen)
-            {
-                GameManager.ClosedMenu();
-                InventoryOpen = false;
-                Inventory.Close();
-            }
-            else
-            {
-                GameManager.OpenedMenu();
-                InventoryOpen = true;
-                Inventory.Open();
-            }
-        }
+            Inventory.Toggle();
+
+        //check gun hotkeys
+        else if (Input.GetKeyDown(KeyCode.Alpha1))
+            Inventory.EquipGunInIndex(0);
+
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+            Inventory.EquipGunInIndex(1);
+
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+            Inventory.EquipGunInIndex(2);
+
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+            Inventory.EquipGunInIndex(3);
+
+        if (Input.GetAxis("Mouse ScrollWheel") > 0)
+            Inventory.EquipNextGun();
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+            Inventory.EquipPreviousGun();
+
     }
 
     void GetMovementType()
@@ -186,7 +196,6 @@ public class PlayerController : MonoBehaviour {
     void UpdateMovement()
     {
         //move player, camera, and jump
-
         Vector3 movement = new Vector3(xInput, 0, zInput); //create vector with the movement of the player on the surface
         movement = Vector3.ClampMagnitude(movement, Speed * SpeedMultiplier ); //clamp values to maximum Speed of player (prevents going fast diagonaly because of adding x and z values)
         movement = transform.TransformVector(movement); //rotate movement vector relative to the player rotation
@@ -210,12 +219,14 @@ public class PlayerController : MonoBehaviour {
         else
             ySpeed += Gravity * Time.deltaTime; //if not grounded apply Gravity
 
+
         //rotate player left and right based on mouse rotation (based on mouse position on the x axis)
         transform.Rotate(0f, xMouse, 0f);
 
         //rotate player camera up and down within angle limit
         CameraYRotation += yMouse; //add rotation amount (based on mouse movement on y axis)
         CameraYRotation = Mathf.Clamp(CameraYRotation, RotationLimitDown, RotationLimitUp); //clamp rotation to angle limit (if yRotation outside limit returns closest rotation within the limit)
+        
         PlayerCamera.transform.eulerAngles = new Vector3(CameraYRotation, PlayerCamera.eulerAngles.y, 0f); //rotate camera
 
         //clamp y axis Speed to maximum falling Speed

@@ -3,16 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
-    Gun temp;
+
     public PlayerController p_controller;
     public WeaponController PlayerWeapon;
+    public InventoryController PlayerInventory;
 
+    bool OpenMenu = false; //true if a menu is opened
 	// Use this for initialization
 	void Start ()
     {
-        temp = new Gun(1,0,1); //create test gun
-        PlayerWeapon.EquipGun(temp); // give player the gun
-
+        //TESTING INVENTORY SYSTEM
+        Gun testGun = new Gun(1,0,1); //create test gun
+        Gun testGun2 = new Gun(1, 1, 1);
+        Gun testGun3 = new Gun(1,1);
+        PlayerInventory.SetGunInIndex(testGun, 0);
+        PlayerInventory.SetGunInIndex(testGun2, 1);
+        PlayerInventory.SetGunInIndex(testGun3, 2);
+        PlayerInventory.EquipGunInIndex(0);
         GameObject test_dummy = GameObject.Find("Test Dummy"); //find the test dummy game object
 
         //make the cursor invisible
@@ -31,6 +38,7 @@ public class GameManager : MonoBehaviour {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.Confined;
         Time.timeScale = 0;
+        OpenMenu = true;
     }
 
     public void ClosedMenu()
@@ -39,7 +47,8 @@ public class GameManager : MonoBehaviour {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
+        OpenMenu = false;
     }
 
-    public string Test() { return temp.ToString(); }
+    public bool IsMenuOpen() { return OpenMenu; }
 }
