@@ -104,9 +104,12 @@ public class InventoryController : MonoBehaviour
 
     private void SetVisible(bool visible)
     {
-        //make visible/invisible by enableing/disabling all image components of children
+        //make visible/invisible by enableing/disabling all image/text components of children
         Image[] images = GetComponentsInChildren<Image>();
         foreach (Image i in images)
             i.enabled = visible;
+        Text[] texts = GetComponentsInChildren<Text>();
+        foreach (Text t in texts)
+            t.enabled = visible;
     }
 }
