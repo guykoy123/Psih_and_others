@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour {
 	void Start ()
     {
         //TESTING INVENTORY SYSTEM
-        Gun testGun = new Gun(1,0,1); //create test gun
+        Gun testGun = new Gun(1,1,1); //create test gun
         Gun testGun2 = new Gun(1, 1, 1);
         Gun testGun3 = new Gun(1,1);
         PlayerInventory.SetGunInIndex(testGun, 0);

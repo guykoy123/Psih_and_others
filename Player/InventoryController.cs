@@ -7,27 +7,55 @@ public class InventoryController : MonoBehaviour
 {
     int EquippedGunIndex; //index of gun currently in player hands
     Gun[] GunArray = new Gun[4]; //create 4 slots for quickly swaping guns
-    List<GameObject> Inventory;
+    List<InventorySlot> InventorySlots = new List<InventorySlot>();
 
     bool Open = false; //the current state of the invetory (open-true/closed-false)
 
     GameManager gameManager;
     WeaponController weaponController;
 
+    bool MouseDown = false;
     // Start is called before the first frame update
     void Start()
     {
         //make invisble
         SetVisible(false);
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        weaponController = GameObject.Find("Weapon").GetComponent<WeaponController>();     
+        weaponController = GameObject.Find("Weapon").GetComponent<WeaponController>();
+        GameObject[] slots = GameObject.FindGameObjectsWithTag("InventorySlot");
+        Debug.Log("slots:" + slots.Length);
+        Debug.Log(slots[0].name);
+        foreach(GameObject i in slots)
+        {
+            InventorySlots.Add(i.GetComponent<InventorySlot>());
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Open)
+        {
+            UpdateHotkeyIcons();
+            if(GunArray[2]!= null)
+            {
+                InventorySlots[0].SetItem(GunArray[2]);
+                GunArray[2] = null;
+            }
+                
 
+        }
     }
+
+    private void UpdateHotkeyIcons()
+    {
+        for(int i = 0; i < GunArray.Length; i++)
+        {
+            if(GunArray[i] != null)
+                GameObject.Find("GunSlot"+(i+1)).GetComponent<Image>().sprite = GunArray[i].GetItemIcon();
+        }
+    }
+
     public void EquipNextGun()
     {
         //run recursibve funcrion that rerievs index of the next gun in the array
@@ -83,6 +111,12 @@ public class InventoryController : MonoBehaviour
     {
         if (i >= 0 && i < GunArray.Length)
             GunArray[i] = gun;
+    }
+
+    public void RemoveGunInIndex(int i)
+    {
+        if (GunArray[i] != null)
+            GunArray[i] = null;
     }
 
     public void Toggle()

@@ -4,16 +4,9 @@ using UnityEngine;
 using System;
 using System.IO;
 
-public class Gun
+public class Gun:Item
 {
-    //pistol - 1, shotgun - 2, smg - 3, assault rifle - 4, lmg - 5, sniper - 6, rpg - 7
-
-    //rarity codes: 0 - common (default), 1 - uncommon, 2 - rare, 3 - legendary
-    int RarityCode;
-    string RarityName;
-
-    GunType Type;
-
+    GunType GunType;
     GameObject WeaponMesh;
 
     //firing mode: 0 - auto, 1 - semi
@@ -30,10 +23,15 @@ public class Gun
     //TODO: load object from source not manualy
     public GameObject MuzzleFlash;
 
-    public Gun(int type,int rarity = 0, int FireMode = 0)
+    public Gun(int gunType,int rarityCode, int FireMode = 0)
     {
+        //create base
+        this.ItemIcon = Resources.Load<Sprite>("UI/Images/Inventory/Pistol Icon/TestIcon");
+        this.ItemRarity = new Rarity(rarityCode);
+        this.ItemType = new ItemType(1);
+
         //create GunType object and save it
-        Type = new GunType(type);
+        GunType = new GunType(gunType);
 
         //load randome weapon model
         LoadWeaponMesh();
@@ -41,11 +39,11 @@ public class Gun
         //check fire mode legal and save
         SetFiringMode(FireMode);
 
-        //check rarity and save
-        SetRarityName(rarity);
+        //this.SetRarity(rarityCode);
 
         //randomize gun stats based on rarity and type
-        float[] stats = GunConfiguration.GenerateStats(Type.GetTypeCode(),RarityCode);
+        float[] stats = GunConfiguration.GenerateStats(GunType.GetTypeCode(),rarityCode);
+
         //save stats
         FireRate = stats[0];
         Damage = stats[1];
@@ -54,6 +52,8 @@ public class Gun
         Accuracy = stats[4];
 
         CurrentAmmo = MagazineSize; //reset magazine ammo
+
+        
     }
 
     private void SetFiringMode(int FireMode)
@@ -66,50 +66,26 @@ public class Gun
             FiringMode = FireMode; //save fire mode
     }
 
-    private void SetRarityName(int rarity)
-    {
-        //checks if rarity code is legal and updates RarityName
-        switch (rarity)
-        {
-            case 0:
-                RarityName = "Common";
-                break;
-            case 1:
-                RarityName = "Uncommon";
-                break;
-            case 2:
-                RarityName = "Rare";
-                break;
-            case 3:
-                RarityName = "Legendary";
-                break;
-            default:
-                throw new System.ArgumentOutOfRangeException("rarity", "Must be a value between 0 and 3");
-        }
-        this.RarityCode = rarity;
-    }
-
     private void LoadWeaponMesh()
     {
         //loads random weapon model based on the set weapon type
-        var files = Directory.GetFiles(Directory.GetCurrentDirectory()+ "\\Assets\\Resources\\Prefabs\\Weapons\\"+Type.GetTypeName(), "*.prefab"); //get all model files from the gun type folder
+        var files = Directory.GetFiles(Directory.GetCurrentDirectory()+ "\\Assets\\Resources\\Prefabs\\Weapons\\"+ GunType.GetTypeName(), "*.prefab"); //get all model files from the gun type folder
         int index = new System.Random().Next(0, files.Length); //pick random file
-        WeaponMesh = Resources.Load<GameObject>("Prefabs\\Weapons\\"+Type.GetTypeName()+"\\"+Path.GetFileNameWithoutExtension(files[index])); //load weapon model
+        WeaponMesh = Resources.Load<GameObject>("Prefabs\\Weapons\\"+ GunType.GetTypeName()+"\\"+Path.GetFileNameWithoutExtension(files[index])); //load weapon model
     }
 
     public GameObject GetWeaponMesh() { return WeaponMesh;}
     public float GetFiringRate() { return FireRate; }
     public float GetDamage() { return Damage; }
-    public string GetRarity() { return RarityName; }
     public int GetFiringMode() { return FiringMode; }
     public float GetZoomValue() { return ZoomValue; }
     public float GetAccuracy() { return Accuracy; }
     public int GetCurrentAmmo() { return CurrentAmmo; }
     public int GetMagazineSize() { return MagazineSize; }
     public GameObject GetMuzzleFlash() { return MuzzleFlash; }
-    public int GetTypeCode() { return Type.GetTypeCode(); }
-    public GunType GetType() { return Type; }
-   
+    public int GetTypeCode() { return GunType.GetTypeCode(); }
+    public GunType GetGunType() { return GunType; }
+
     public bool Shoot()
     {
         //check if the magazine is not empty
@@ -133,8 +109,8 @@ public class Gun
     public override string ToString()
     {
         string text = "";
-        text += "Type: " + Type.GetTypeName();
-        text += ", Rarity: " + RarityName;
+        text += this.ItemType.GetTypeName()+" Type: " + GunType.GetTypeName();
+        text += ", Rarity: " + this.ItemRarity.GetRarityName();
         text += ", Damage: " + Damage.ToString();
         text += ", Fire Rate: " + FireRate.ToString();
         text += ",\r\n Firing mode: " + FiringMode;
