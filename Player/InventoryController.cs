@@ -6,8 +6,9 @@ using UnityEngine.UI;
 public class InventoryController : MonoBehaviour
 {
     int EquippedGunIndex; //index of gun currently in player hands
-    Gun[] GunArray = new Gun[4]; //create 4 slots for quickly swaping guns
+    List<EquipmentSlot> GunArray = new List<EquipmentSlot>(); //create slots for quickly swaping guns
     List<InventorySlot> InventorySlots = new List<InventorySlot>();
+    List<EquipmentSlot> EquipmentSlots = new List<EquipmentSlot>();
 
     bool Open = false; //the current state of the invetory (open-true/closed-false)
 
@@ -22,13 +23,26 @@ public class InventoryController : MonoBehaviour
         SetVisible(false);
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         weaponController = GameObject.Find("Weapon").GetComponent<WeaponController>();
+
+        //setup inventory slots list
         GameObject[] slots = GameObject.FindGameObjectsWithTag("InventorySlot");
         Debug.Log("slots:" + slots.Length);
-        Debug.Log(slots[0].name);
         foreach(GameObject i in slots)
         {
             InventorySlots.Add(i.GetComponent<InventorySlot>());
         }
+
+        //setup equipment slots list and gun array
+        GameObject[] temp = GameObject.FindGameObjectsWithTag("EquipmentSlot");
+        Debug.Log("equipment slots:" + slots.Length);
+        foreach (GameObject i in temp)
+        {
+            EquipmentSlot eqSlot = i.GetComponent<EquipmentSlot>();
+            EquipmentSlots.Add(eqSlot);
+            if (eqSlot.Type == EquipmentSlot.EquipmentType.Weapon)
+                GunArray.Add(eqSlot);
+        }
+
     }
 
     // Update is called once per frame
@@ -36,25 +50,11 @@ public class InventoryController : MonoBehaviour
     {
         if (Open)
         {
-            UpdateHotkeyIcons();
-            if(GunArray[2]!= null)
-            {
-                InventorySlots[0].SetItem(GunArray[2]);
-                GunArray[2] = null;
-            }
                 
 
         }
     }
 
-    private void UpdateHotkeyIcons()
-    {
-        for(int i = 0; i < GunArray.Length; i++)
-        {
-            if(GunArray[i] != null)
-                GameObject.Find("GunSlot"+(i+1)).GetComponent<Image>().sprite = GunArray[i].GetItemIcon();
-        }
-    }
 
     public void EquipNextGun()
     {
@@ -68,9 +68,9 @@ public class InventoryController : MonoBehaviour
          * recursive function
          * looks for the next gun in the gun array
          */
-        if (i >= GunArray.Length)
+        if (i >= GunArray.Count)
             return GetNextGunIndex(0);
-        else if (GunArray[i] != null)
+        else if (!GunArray[i].IsEmpty())
             return i;
         return GetNextGunIndex(i + 1);
     }
@@ -88,7 +88,7 @@ public class InventoryController : MonoBehaviour
          */
         if (i < 0)
             return GetPreviousGunIndex(3);
-        else if (GunArray[i] != null)
+        else if (!GunArray[i].IsEmpty())
             return i;
         return GetPreviousGunIndex(i - 1);
     }
@@ -100,25 +100,35 @@ public class InventoryController : MonoBehaviour
          * if not do no equip different gun
          * return equipped gun
          */
-        if (i>=0 && i < GunArray.Length)
-            if(GunArray[i] != null)
+        if (i>=0 && i < GunArray.Count)
+            if(!GunArray[i].IsEmpty())
                 EquippedGunIndex = i;
 
-        weaponController.EquipGun(GunArray[EquippedGunIndex]);
+        weaponController.EquipGun((Gun)GunArray[EquippedGunIndex].GetItem());
     }
 
     public void SetGunInIndex(Gun gun, int i)
     {
-        if (i >= 0 && i < GunArray.Length)
-            GunArray[i] = gun;
+        if (i >= 0 && i < GunArray.Count)
+            GunArray[i].SetItem( gun);
     }
-
+    
     public void RemoveGunInIndex(int i)
     {
-        if (GunArray[i] != null)
+        if (!GunArray[i].IsEmpty())
             GunArray[i] = null;
     }
-
+    void UpdateEquipment()
+    {
+        /*
+         * updates player based on the changes made to the equipment
+         */
+        if (GunArray[EquippedGunIndex].IsEmpty())
+        {
+            weaponController.RemoveGun();
+        }
+        weaponController.EquipGun((Gun)GunArray[EquippedGunIndex].GetItem());
+    }
     public void Toggle()
     {
         //Toggle inventory open/close
@@ -127,6 +137,7 @@ public class InventoryController : MonoBehaviour
             SetVisible(false);
             Open = false;
             gameManager.ClosedMenu();
+            UpdateEquipment();
         }
         else
         {

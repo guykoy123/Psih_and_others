@@ -7,6 +7,7 @@ public class Item
     protected Sprite ItemIcon { get; set; }
     protected Rarity ItemRarity { get; set; }
     protected ItemType ItemType { get; set; }
+
     public Item()
     {
     }

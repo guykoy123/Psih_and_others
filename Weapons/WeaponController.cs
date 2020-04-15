@@ -84,9 +84,17 @@ public class WeaponController : MonoBehaviour {
         //check if gun equipped
         if (EquippedGun != null)
         {
+
             //primary fire
+            if (Input.GetButtonDown("Fire1"))
+            {
+                Debug.Log(EquippedGun.GetFiringMode() == 1);
+                Debug.Log(Time.time >= TimeToFire);
+                Debug.Log(!Player.isSprinting());
+            }
             if (EquippedGun.GetFiringMode() == 1 && Input.GetButtonDown("Fire1") && Time.time >= TimeToFire && !Player.isSprinting()) //check if firing mode is semi and the player pressed fire and it is time to fire and player isn't sprinting
             {
+                Debug.Log("trigger");
                 Fire();
                 TimeToFire = Time.time + (1 / (EquippedGun.GetFiringRate() * Time.deltaTime));
             }
@@ -147,6 +155,7 @@ public class WeaponController : MonoBehaviour {
     {
         if (EquippedGun.Shoot())
         {
+            Debug.Log("bang");
             UpdateAmmo();
             RaycastHit hit;
             if (Physics.Raycast(PlayerCamera.transform.position, CalculateShotVector(), out hit))
@@ -248,7 +257,10 @@ public class WeaponController : MonoBehaviour {
     private void UpdateAmmo()
     {
         //update ammo counter UI
-        AmmoTextbox.text = EquippedGun.GetCurrentAmmo() + " / " + EquippedGun.GetMagazineSize();
+        if (isGunEquipped())
+            AmmoTextbox.text = EquippedGun.GetCurrentAmmo() + " / " + EquippedGun.GetMagazineSize();
+        else
+            AmmoTextbox.text = "-/-";
     }
 
     public float GetAccuracy()
@@ -258,12 +270,7 @@ public class WeaponController : MonoBehaviour {
     }
     public float GetCurrentAccuracy() {return EquippedGun.GetAccuracy() * GetAccuracyMultiplier();}
     
-    public bool isGunEquipped()
-    {
-        if (EquippedGun != null)
-            return true;
-        return false;
-    }
+    public bool isGunEquipped() { return (EquippedGun != null); }
 
     public void EquipGun(Gun NewGun) 
     {
@@ -273,13 +280,21 @@ public class WeaponController : MonoBehaviour {
          * update gun type in the animator
          * trigger player animation for holding gun
          */
-         //TODO: needs to load gun into scene
-
+        //TODO: needs to load gun into scene
         EquippedGun = NewGun; //equip new gun
         UpdateAmmo(); //display ammo
-        FirePoint = GameObject.Find("FirePoint");//load fire point
-        GunAnimator.SetInteger("GunType", EquippedGun.GetTypeCode());
-        Instantiate(EquippedGun.GetWeaponMesh(), gameObject.transform); //load the weapon into the scene as child of WeaponController
-        GameObject.Find("Player").GetComponent<PlayerController>().TriggerGunEquipAnim(); //TODO: do this based on the gun
+        if(NewGun != null)
+        {
+            FirePoint = GameObject.Find("FirePoint");//load fire point
+            GunAnimator.SetInteger("GunType", EquippedGun.GetTypeCode());
+            Instantiate(EquippedGun.GetWeaponMesh(), gameObject.transform); //load the weapon into the scene as child of WeaponController
+            GameObject.Find("Player").GetComponent<PlayerController>().TriggerGunEquipAnim(); //TODO: do this based on the gun
+            TimeToFire = 0f; //reset time to fire
+        }
+    }
+    public void RemoveGun()
+    {
+        EquippedGun = null;
+        //TODO: despawn model
     }
 }
